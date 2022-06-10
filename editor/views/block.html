@@ -1,0 +1,38 @@
+<div class="block block_{{lower type}}">
+    <div class="block_header">
+      <div class="connector_in">
+      </div>
+      <div class="block_name">
+        {{name}}
+      </div>
+      <div class="block_type">
+        <i class="fas {{icon}}"></i> {{type}}
+      </div>
+    </div>
+    <div class="block_content">
+      {{#if contentEmpty}}
+      <span class="placeholder">Click me to configure text.</span>
+      {{else}}
+      {{{nl2br content}}}
+      {{/if}}
+    </div>
+    {{#if connectors}}
+    <div class="connectors">
+      {{#each connectors}}
+      <div class="connector_container">
+        {{#if label}}
+        <div class="connector_label">
+          {{label}}
+        </div>
+        {{else}}
+        <div class="connector_filler">
+
+        </div>
+        {{/if}}
+        <div class="connector_out" data-connector-id="{{@index}}">
+        </div>
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
+  </div>

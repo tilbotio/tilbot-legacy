@@ -1,0 +1,30 @@
+<div id="num_connectors" style="display: none">{{connectors.length}}</div>
+
+{{#each connectors}}
+<div class="edit_option">
+  <div class="edit_header">Option {{inc @index}}</div>
+  <div class="edit_value">
+    <input type="text" id="edit_connector_{{@index}}" data-edit-connector-id="{{@index}}" data-edit-connector-field="label" value="{{this.label}}"></input>
+  </div>
+</div>
+{{/each}}
+
+<div class="edit_option_fullwidth">
+  <div class="edit_header" id="add_mc" style="cursor: pointer">+ Add new option</div>
+  <div class="edit_value">
+  </div>
+</div>
+
+<script type="text/javascript">
+  var num_connectors = parseInt($('#num_connectors').text());
+
+  $('#add_mc').on('click', function() {
+    $(`<div class="edit_option">
+      <div class="edit_header">Option ` + (num_connectors+1) + `</div>
+      <div class="edit_value">
+        <input type="text" id="edit_connector_` + num_connectors + `" data-edit-connector-id="` + num_connectors + `" data-edit-connector-field="label" value=""></input>
+      </div>
+    </div>`).insertBefore($(this).parent());
+    num_connectors += 1;
+  });
+</script>

@@ -1,0 +1,20 @@
+<div class="edit_option">
+  <div class="edit_header">Add a free text input?</div>
+  <div class="edit_value">
+    <input type="checkbox" id="edit_freetext" data-field="text_input" {{checked text_input}}></input>
+  </div>
+</div>
+
+<div class="edit_option">
+  <div class="edit_header">Add a number input?</div>
+  <div class="edit_value">
+    <input type="checkbox" id="edit_number" data-field="number_input" {{checked number_input}}></input>
+  </div>
+</div>
+
+<div class="edit_option_fullwidth">
+  <div class="edit_header">Items in the list (use semicolon to separate)</div>
+  <div class="edit_value">
+    <textarea id="edit_items" class="editable_field" data-field="items" data-conversion="array">{{semicolon items}}</textarea>
+  </div>
+</div>

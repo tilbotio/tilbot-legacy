@@ -1,0 +1,596 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0px;
+  overflow: hidden;
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+
+}
+
+*[contenteditable="true"] {
+  -webkit-touch-callout: default; /* iOS Safari */
+    -webkit-user-select: text; /* Safari */
+     -khtml-user-select: text; /* Konqueror HTML */
+       -moz-user-select: text; /* Old versions of Firefox */
+        -ms-user-select: text; /* Internet Explorer/Edge */
+            user-select: text; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+#top_bar {
+  height: 88px;
+  z-index: 1002;
+  position: fixed;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+  pointer-events: none;
+}
+
+#top_bar img {
+  height: 72px;
+  margin-top: 8px;
+  margin-left: 8px;
+  float: left;
+}
+
+#project_title {
+  float: left;
+  font-size: 16pt;
+  margin-left: 16px;
+  margin-right: 16px;
+  margin-top: 23px;
+  pointer-events: auto;
+}
+
+#btn_edit_title, #btn_save_title {
+  margin-top: 27px;
+  cursor: pointer;
+  pointer-events: auto;
+  float: left;
+}
+
+#btn_save_title {
+  display: none;
+}
+
+#editor_container {
+  width: calc(100% - 320px);
+  height: 100%;
+  overflow: scroll;
+  position: absolute;
+  top: 0px;
+}
+
+#editor_panel {
+  width: 200%;
+  height: 200%;
+  position: relative;
+}
+
+#editor_panel_gradient {
+  background-image: url('../img/pattern_grid.png');
+  background-repeat: repeat;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  -webkit-mask-image: radial-gradient(circle at top left, transparent, rgba(0, 0, 0, 0.02));
+  mask-image: radial-gradient(circle at top left, transparent, rgba(0, 0, 0, 0.02));
+  z-index: 1;
+  pointer-events: none;
+}
+
+#simulator_panel {
+  width: 320px;
+  height: calc(100% - 64px);
+  position: absolute;
+  left: calc(100% - 320px);
+  top: 64px;
+  border-left: 1px solid #e8e8e8;
+  border-top: 1px solid #e8e8e8;
+  padding-left: 4px;
+  padding-top: 4px;
+  background-color: #fafafa;
+  box-sizing: border-box;
+}
+
+#simulator_panel iframe {
+  width: 100%;
+  height: 100%;
+  border: 0px;
+  border-left: 1px solid #e8e8e8;
+  border-top: 1px solid #e8e8e8;
+}
+
+.block {
+  top: 0px;
+  left: 0px;
+  width: 240px;
+  height: 112px;
+  background-color: #ff8888;
+  position: absolute;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 10pt;
+  z-index: 2;
+}
+
+.block_auto {
+  background-color: #D74461 !important;
+}
+
+.block_mc {
+  background-color: #4F47D4 !important;
+}
+
+.block_text {
+  background-color: #FC1F8C !important;
+}
+
+.block_list {
+  background-color: #05BDCC !important;
+}
+
+.block_header {
+  width: 100%;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}
+
+.block_name {
+  float: left;
+  margin-left: 24px;
+  margin-top: 3px;
+}
+
+.block_type {
+  float: right;
+  margin-right: 4px;
+  margin-top: 3px;
+}
+
+.block_content {
+  margin-top: 24px;
+  box-sizing: border-box;
+  margin-left: 6px;
+  margin-right: 6px;
+  height: 64px;
+  background-color: #F6F6F6;
+  color: #000000;
+  border-radius: 6px;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.connectors {
+  position: absolute;
+  border-radius: 6px;
+  width: 228px;
+  margin-left: 6px;
+  top: 96px;
+  padding-bottom: 8px;
+}
+
+.block_auto .connectors {
+  background-color: #AF2541;
+}
+
+.block_mc .connectors {
+  background-color: #2C25A0;
+}
+
+.block_text .connectors {
+  background-color: #CF0267;
+}
+
+.block_list .connectors {
+  background-color: #049EAA;
+}
+
+.connector_in, .connector_out {
+  border-radius: 50%;
+  background-color: #ffffff;
+  position: absolute;
+  z-index: 1001;
+  opacity: 0.8;
+}
+
+.connector_in {
+  top: 4px;
+  left: 4px;
+  width: 12px;
+  height: 12px;
+}
+
+.connector_container {
+    width: 100%;
+}
+
+.connector_filler {
+  height: 12px;
+  padding: 5px;
+  width: 126px;
+  margin-left: 8px;
+  margin-top: 8px;
+}
+
+.connector_label {
+  color: #000000;
+  border-radius: 12px;
+  height: 12px;
+  background-color: #F6F6F6;
+  padding: 5px;
+  font-size: 8pt;
+  font-weight: bold;
+  width: 160px;
+  margin-left: 8px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.connector_out {
+  width: 20px;
+  height: 20px;
+  right: 8px;
+  margin-top: -21px;
+}
+
+#connector_lines {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  left: 0px;
+  top: 0px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.connector-clickable {
+  stroke: rgb(0,0,0);
+  stroke-width: 10;
+  stroke-opacity: 0.0;
+  pointer-events: auto;
+}
+
+.connector-solid {
+  stroke: rgb(0,0,0);
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.connector-drawing {
+  pointer-events: none;
+}
+
+.connector_selected {
+  stroke: #ff8888;
+}
+
+.block_deselected {
+  opacity: 0.5;
+}
+
+#starting_point_container {
+  position: absolute;
+  left: 64px;
+  top: 96px;
+  text-align: center;
+}
+
+#starting_point {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #000000;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+#new_block_button {
+  border-radius: 50%;
+  background-color: #000000;
+  width: 48px;
+  height: 48px;
+  font-size: 24pt;
+  font-weight: bold;
+  color: #ffffff;
+  position: fixed;
+  top: 89%;
+  left: calc(100% - 400px);
+  box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+  cursor: pointer;
+  text-align: center;
+  box-sizing: border-box;
+  padding-top: 4px;
+  z-index: 4;
+}
+
+
+@media not all and (min-resolution:.001dpcm) { @supports (-webkit-appearance:none) and (stroke-color:transparent) {
+  #new_block_button {
+      padding-top: 2px;
+    }
+  }
+}
+
+#overlay {
+    background-color: #000000;
+    opacity: 0.4;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    position: fixed;
+    z-index: 1002;
+    display: none;
+}
+
+#new_block_popup, #edit_block_popup_container {
+  position: fixed;
+  width: 65%;
+  left: 5%;
+  height: 80%;
+  top: 15%;
+  background-color: #EBEBEB;
+  box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+  z-index: 1003;
+  display: none;
+}
+
+#edit_block_popup_container {
+  border-radius: 6px;
+  width: 45%;
+  left: 40%;
+}
+
+#edit_block_popup {
+  border-radius: 6px;
+  width: 100%;
+  height: 100%;
+}
+
+#edit_block_type {
+  float: right;
+  margin-right: 24px;
+  margin-top: 16px;
+  color: #ffffff;
+}
+
+.popup_title {
+  font-size: 14pt;
+  font-weight: 500;
+  text-align: center;
+  padding: 16px;
+}
+
+#edit_popup_title {
+  font-size: 14pt;
+  font-weight: 500;
+  color: #ffffff;
+  float: left;
+  margin-left: 24px;
+  margin-top: 16px;
+}
+
+#edit_popup_content {
+  background-color: #EBEBEB;
+  float: left;
+  width: calc(100% - 32px);
+  margin-left: 16px;
+  margin-top: 16px;
+  box-sizing: border-box;
+  height: calc(100% - 118px);
+  border-radius: 6px;
+  padding: 16px;
+  overflow-y: scroll;
+}
+
+#btn_edit_block_name, #btn_save_block_name {
+  cursor: pointer;
+  margin-left: 16px;
+  font-size: 12pt;
+  color: #ffffff;
+  margin-top: 18px;
+  float: left;
+}
+
+#btn_save_block_name {
+  display: none;
+}
+
+.new_block_popup_line {
+  padding-top: 16px;
+  padding-bottom: 16px;
+  cursor: pointer;
+  float: left;
+  width: 100%;
+
+}
+
+.new_block_popup_line:hover {
+  background-color: #E0E0E0;
+}
+
+.new_block_popup_line_selected {
+  background-color: #FFD6D6;
+}
+
+.new_block_icon {
+  float: left;
+  width: 52px;
+  text-align: center;
+}
+
+.new_block_description {
+  float: left;
+  width: calc(100% - 88px);
+}
+
+.button {
+  text-transform: uppercase;
+  color: #ffffff;
+  background-color: #13171E;
+  border-radius: 4px;
+  padding-left: 24px;
+  padding-right: 24px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  display: inline-block;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.button_disabled {
+  color: #000000;
+  background-color: #AFAFAF;
+  cursor: default;
+}
+
+.button_white {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.popup_button_container {
+  position: absolute;
+  bottom: 16px;
+  width: 100%;
+  text-align: center;
+}
+
+.placeholder {
+  font-style: italic;
+  color: #777777;
+}
+
+.edit_option, .edit_option_fullwidth {
+  width: 100%;
+}
+
+.edit_header {
+  font-weight: bold;
+}
+
+.edit_option .edit_header {
+  width: 60%;
+}
+
+.edit_header {
+  padding: 16px;
+  box-sizing: border-box;
+  float: left;
+}
+
+.edit_option .edit_value {
+  width: 40%;
+}
+
+.edit_value {
+  padding: 16px;
+  box-sizing: border-box;
+  float: left;
+}
+
+.edit_option_fullwidth .edit_header {
+    width: 100%;
+    padding-bottom: 0px;
+}
+
+.edit_option_fullwidth .edit_value {
+    width: 100%;
+}
+
+.edit_option_fullwidth .edit_value > * {
+  width: 100%;
+}
+
+#edit_popup_content textarea {
+  height: 64px;
+}
+
+#minimap {
+  position: fixed;
+  top: 64px;
+  left: auto !important;
+  right: 350px;
+  width: 20vw;
+  height: 20vh;
+  border: 2px solid #777777;
+  z-index: 1001;
+}
+
+#minimap_content {
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+}
+
+#minimap_selection {
+  border: 1px solid #ff8888;
+  width: 50%;
+  height: 50%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+#minimap canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#controls {
+  float: right;
+}
+
+#btn_run_all, #btn_run_selected, #btn_export, #btn_import {
+  float: left;
+  margin-top: 20px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+#btn_export {
+  margin-right: 20px;
+}
+
+#btn_run_all {
+  margin-right: 20px;
+  margin-left: 32px;
+}
+
+#btn_run_selected, #btn_import {
+  margin-right: 8px;
+}
+
+#btn_run_all i, #btn_run_selected i, #btn_export i, #btn_import i {
+  font-size: 16pt;
+  float: left;
+  margin-top: -1px;
+  margin-right: 4px;
+}
+
+.btn_text {
+  float: left;
+}
+
+#hiddenfile {
+ width: 0px;
+ height: 0px;
+ overflow: hidden;
+}
+
+
+@media only screen and (max-width: 1024px) {
+  #edit_block_popup_container {
+    width: 65%;
+  }
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');

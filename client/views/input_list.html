@@ -1,0 +1,16 @@
+<div id="input_list">
+
+  {{#if number_input}}
+    <input type="number" id="input_select_number" />
+  {{/if}}
+
+  {{#if text_input}}
+    <input type="text" min="0" id="input_select_text" />
+  {{/if}}
+
+  <select id="input_select">
+  {{#each options}}
+    <option value="{{this}}">{{this}}</div>
+  {{/each}}
+  </select>
+</div>

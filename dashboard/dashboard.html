@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Tilbot.io - Dashboard</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="viewport-fit=cover, user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link href="/dashboard/css/dashboard.css" rel="stylesheet">
+    <link href="/vendor/fontawesome-free-6.0.0-web/css/all.min.css" rel="stylesheet">
+
+    <script data-main="/dashboard/app" src="/vendor/require.min.js"></script>
+  </head>
+  <body>
+    You have reached the dashboard!<br /><br />
+
+    <div id="dashboard_account">
+      <h1>Manage account</h1>
+
+      <h2>Change password</h2>
+      Old password <input id="txt_old_pass" type="password" /><br /><br />
+      New password <input id="txt_new_pass" type="password" /><br />
+      New password (again, just to be sure) <input id="txt_new_pass2" type="password" /><br /><br />
+
+      <button type="button" id="btn_update_pass">Save</button>
+    </div>
+
+    <div id="dashboard_users">
+      <h1>Manage users</h1>
+      <div id="dashboard_user_list">
+      </div>
+
+      <h2>Add new user</h2>
+      Name <input id="txt_newuser_name" type="text" /><br />
+      Password <input id="txt_newuser_pass" type="password" /><br /><br />
+
+      <button type="button" id="btn_add_user">Add user</button>
+    </div>
+
+    <div id="dashboard_projects">
+      <h1>Projects</h1>
+
+    </div>
+
+    <br /><br />
+    <a href="/logout">Log out!</a>
+  </body>
+</html>

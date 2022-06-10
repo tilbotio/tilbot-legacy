@@ -1,0 +1,17 @@
+<div id="new_block_popup">
+  <div class="popup_title">Add new step</div>
+  {{#each .}}
+  <div class="new_block_popup_line" data-block-type="{{type}}">
+    <div class="new_block_icon">
+      <i class="fas {{icon}}"></i>
+    </div>
+    <div class="new_block_description">
+      <strong>{{name}}</strong><br />
+      {{description}}
+    </div>
+  </div>
+  {{/each}}
+  <div class="popup_button_container">
+    <div class="button button_disabled" id="btn_new_block_confirm">Add step</div>
+  </div>
+</div>
