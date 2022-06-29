@@ -1,0 +1,46 @@
+version: "1"
+services:
+  mongo:
+    image: "mongo"
+    container_name: db
+    restart: "always"
+    networks:
+      - tilbot-network
+    env_file: .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
+      MONGO_INITDB_DATABASE: $MONGO_INITDB_DATABASE
+      DATABASE_USERNAME: $MONGO_DATABASE_USERNAME
+      DATABASE_PASSWORD: $MONGO_DATABASE_PASSWORD
+      MONGO_PORT: $MONGO_PORT
+    volumes:
+      - ./mongodb:/data/db
+      - ./docker_scripts/:/docker-entrypoint-initdb.d/      
+
+  node:
+    image: "node"
+    user: "node"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./:/home/node/app
+    ports:
+      - 80:80
+    networks:
+      - tilbot-network
+    command: bash -c "npm ci && npm start"
+    env_file: .env
+    environment:
+      MONGO_USERNAME: $MONGO_DATABASE_USERNAME
+      MONGO_PASSWORD: $MONGO_DATABASE_PASSWORD
+      MONGO_HOST: db
+      MONGO_PORT: $MONGO_PORT
+      MONGO_DB: $MONGO_INITDB_DATABASE
+      MONGODB_URL: "mongodb://root:tilbotawesome@mongo:27017/"
+      TILBOT_PORT: 80
+
+networks:
+  tilbot-network:
+    driver: bridge

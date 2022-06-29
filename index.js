@@ -23,7 +23,7 @@ requirejs.config({
   }
 });
 
-requirejs(['http', 'path', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'RemoteProjectServer', 'UserApiController', 'jquery-deferred'], function(http, path, express, session, mongodbsession, bodyparser, socket, mongoose, RemoteProjectServer, UserApiController, $) {
+requirejs(['process', 'http', 'path', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'RemoteProjectServer', 'UserApiController', 'jquery-deferred'], function(process, http, path, express, session, mongodbsession, bodyparser, socket, mongoose, RemoteProjectServer, UserApiController, $) {
   /*
    * jquery-deferred is needed on the server-side because some shared modules
    * use it to dynamically require files. Can perhaps be cleaned up a bit in the future.
@@ -37,7 +37,14 @@ requirejs(['http', 'path', 'express', 'express-session', 'express-mongodb-sessio
   app.use(bodyparser.urlencoded({ extended: true }));
 
   // Set up the MongoDB connection
-  const dbPath = 'mongodb://localhost/tilbot';
+  var dbPath = 'mongodb://localhost/tilbot';
+  
+  if (process.env.MONGO_USERNAME != undefined) {
+    dbPath = 'mongodb://' + process.env.MONGO_USERNAME + ':' + process.env.MONGO_PASSWORD + '@mongo:' + process.env.MONGO_PORT + '/' + process.env.MONGO_DB;
+  }
+
+  console.log(dbPath);
+  
   const options = {useNewUrlParser: true, useUnifiedTopology: true};
   const mongo = mongoose.connect(dbPath, options);
 
@@ -50,8 +57,10 @@ requirejs(['http', 'path', 'express', 'express-session', 'express-mongodb-sessio
 
     // Sessions
     const store = new MongoDBStore({
-      existingConnection: mongo.connection,
-      databaseName: 'tilbot',
+      // Because we are using mongoose rather than MongoDB, express-mongodb-session refuses to use the existing connection because it is not instanceof MongoDB.MongoClient
+      //existingConnection: mongo.connection,
+      //databaseName: process.env.MONGO_DB,
+      uri: dbPath,
       collection: 'sessions'
     });
 
@@ -73,7 +82,14 @@ requirejs(['http', 'path', 'express', 'express-session', 'express-mongodb-sessio
       saveUninitialized: true
     }));
 
-    app.set('port', 8080);
+    var port = 80;
+
+    if (process.env.TILBOT_PORT != undefined) {
+      console.log('yay');
+      port = parseInt(process.env.TILBOT_PORT);
+    }  
+
+    app.set('port', port);
 
     // Main route -- load client (currently loads protocol.json)
     app.get('/', (req, res) => {

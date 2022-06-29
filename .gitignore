@@ -105,3 +105,9 @@ dist
 
 # OS X
 .DS_Store
+
+# Environment variables
+.env
+
+# Mongo database folder for when Docker is used
+mongodb
