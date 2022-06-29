@@ -18,18 +18,19 @@ services:
       - ./docker_scripts/:/docker-entrypoint-initdb.d/      
 
   node:
-    image: "node"
     user: "node"
     working_dir: /home/node/app
     environment:
       - NODE_ENV=production
     volumes:
       - ./:/home/node/app
+      - /home/node/app/node_modules
     ports:
       - 80:80
     networks:
       - tilbot-network
-    command: bash -c "npm ci && npm start"
+    build: ./
+    command: "npm start"
     env_file: .env
     environment:
       MONGO_USERNAME: $MONGO_DATABASE_USERNAME
