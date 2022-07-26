@@ -23,12 +23,18 @@ requirejs.config({
   }
 });
 
-requirejs(['process', 'http', 'path', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'RemoteProjectServer', 'UserApiController', 'jquery-deferred'], function(process, http, path, express, session, mongodbsession, bodyparser, socket, mongoose, RemoteProjectServer, UserApiController, $) {
+requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'RemoteProjectServer', 'UserApiController', 'jquery-deferred'], function(process, fs, http, https, path, express, session, mongodbsession, bodyparser, socket, mongoose, RemoteProjectServer, UserApiController, $) {
   /*
    * jquery-deferred is needed on the server-side because some shared modules
    * use it to dynamically require files. Can perhaps be cleaned up a bit in the future.
   */
   this.$ = $;
+
+  var use_https = true;
+
+  if (process.env.USE_HTTPS != undefined) {
+    use_https = process.env.USE_HTTPS;
+  }
 
   // Create the server
   var app = express();
@@ -42,8 +48,6 @@ requirejs(['process', 'http', 'path', 'express', 'express-session', 'express-mon
   if (process.env.MONGO_USERNAME != undefined) {
     dbPath = 'mongodb://' + process.env.MONGO_USERNAME + ':' + process.env.MONGO_PASSWORD + '@mongo:' + process.env.MONGO_PORT + '/' + process.env.MONGO_DB;
   }
-
-  console.log(dbPath);
   
   const options = {useNewUrlParser: true, useUnifiedTopology: true};
   const mongo = mongoose.connect(dbPath, options);
@@ -82,14 +86,7 @@ requirejs(['process', 'http', 'path', 'express', 'express-session', 'express-mon
       saveUninitialized: true
     }));
 
-    var port = 80;
-
-    if (process.env.TILBOT_PORT != undefined) {
-      port = parseInt(process.env.TILBOT_PORT);
-    }  
-
-    app.set('port', port);
-
+    
     // Main route -- load client (currently loads protocol.json)
     app.get('/', (req, res) => {
       res.sendFile(path.join(__dirname, '/client/index.html'));
@@ -235,17 +232,54 @@ requirejs(['process', 'http', 'path', 'express', 'express-session', 'express-mon
     app.use(express.static('shared'));
     app.use(express.static('.'));
 
-    var httpServer = http.createServer(app);
+    if (use_https && fs.existsSync(__dirname + '/certs/privkey.pem') && fs.existsSync(__dirname + '/certs/fullchain.pem')) {
+      var port = 443;
+
+      if (process.env.TILBOT_PORT != undefined) {
+        port = parseInt(process.env.TILBOT_PORT);
+      }
+    
+      app.set('port', port);  
+
+      const key = fs.readFileSync(__dirname + '/certs/privkey.pem');
+      const cert = fs.readFileSync(__dirname + '/certs/fullchain.pem');
+      var ssloptions = {
+        key: key,
+        cert: cert
+      };   
+      
+      var httpsServer = https.createServer(ssloptions, app);
+
+      // Start express server
+      httpsServer.listen(app.get('port'), function() {
+        console.log('Express server listening on port ' + app.get('port'));
+      });      
+    }
+
+    else {
+      var port = 80;
+  
+      if (process.env.TILBOT_PORT != undefined) {
+        port = parseInt(process.env.TILBOT_PORT);
+      }
+    
+      app.set('port', port);  
+      
+      var httpServer = http.createServer(app);
+
+      // Start express server
+      httpServer.listen(app.get('port'), function() {
+        console.log('Express server listening on port ' + app.get('port'));
+      });      
+    }
+
+
 
     // Temporary client socket code, replace with editor socket code later
     //const io = socket(httpServer);
     //var projectserver = new RemoteProjectServer(io, mongo);
     //var clients = {};
 
-    // Start express server
-    httpServer.listen(app.get('port'), function() {
-      console.log('Express server listening on port ' + app.get('port'));
-    });
 
   }, error => {
     console.log(error, 'error');

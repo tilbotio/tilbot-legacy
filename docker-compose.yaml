@@ -40,6 +40,7 @@ services:
       MONGO_DB: $MONGO_INITDB_DATABASE
       MONGODB_URL: "mongodb://root:tilbotawesome@mongo:27017/"
       TILBOT_PORT: 80
+      USE_HTTPS: false
 
 networks:
   tilbot-network:
