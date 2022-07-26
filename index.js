@@ -85,7 +85,6 @@ requirejs(['process', 'http', 'path', 'express', 'express-session', 'express-mon
     var port = 80;
 
     if (process.env.TILBOT_PORT != undefined) {
-      console.log('yay');
       port = parseInt(process.env.TILBOT_PORT);
     }  
 
@@ -239,9 +238,9 @@ requirejs(['process', 'http', 'path', 'express', 'express-session', 'express-mon
     var httpServer = http.createServer(app);
 
     // Temporary client socket code, replace with editor socket code later
-    const io = socket(httpServer);
-    var projectserver = new RemoteProjectServer(io, mongo);
-    var clients = {};
+    //const io = socket(httpServer);
+    //var projectserver = new RemoteProjectServer(io, mongo);
+    //var clients = {};
 
     // Start express server
     httpServer.listen(app.get('port'), function() {
