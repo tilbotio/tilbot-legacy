@@ -21,8 +21,6 @@ services:
   node:
     user: "node"
     working_dir: /home/node/app
-    environment:
-      - NODE_ENV=production
     volumes:
       - ./:/home/node/app
       - /home/node/app/node_modules
@@ -34,6 +32,7 @@ services:
     command: "npm start"
     env_file: .env
     environment:
+      NODE_ENV: "production"
       MONGO_USERNAME: $MONGO_DATABASE_USERNAME
       MONGO_PASSWORD: $MONGO_DATABASE_PASSWORD
       MONGO_HOST: db
