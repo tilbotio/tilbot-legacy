@@ -1,5 +1,5 @@
-define("ClientController", ["jquery", "handlebars", "TextClientController", "TextServerController", "TypingIndicatorController", "InputMCController", "InputListController", "LocalProjectController", "RemoteProjectController", "text!/client/views/client.html"],
-function($, Handlebars, TextClientController, TextServerController, TypingIndicatorController, InputMCController, InputListController, LocalProjectController, RemoteProjectController, view) {
+define("ClientController", ["jquery", "handlebars", "TextClientController", "TextServerController", "TypingIndicatorController", "InputMCController", "InputListController", "LocalProjectController", "text!/client/views/client.html"],
+function($, Handlebars, TextClientController, TextServerController, TypingIndicatorController, InputMCController, InputListController, LocalProjectController, view) {
 
   return class ClientController {
 
@@ -24,10 +24,10 @@ function($, Handlebars, TextClientController, TextServerController, TypingIndica
 
             // Temporary fix to check whether we are in an iFrame.
             // If not (stand-alone), use remote project manager
-            if (window.self == window.top) {
+            /*if (window.self == window.top) {
               self.projectcontroller = new RemoteProjectController();
               self.projectcontroller.subscribe(self);
-            }
+            }*/
 
           });
       });
