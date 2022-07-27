@@ -24,6 +24,10 @@ If you want to use the docker-compose version of this project, you will need to 
     MONGO_DATABASE_USERNAME=user
     MONGO_DATABASE_PASSWORD=pass
 
+Note: Sometimes git changes the line endings in the MongoDB initialization script, resulting in the Tilbot Docker throwing a MongoError (Authentication failed). This happened for me in Windows, if it does changing the following git setting (in a command prompt with administrator rights) should fix it:
+    
+    git config --system core.autocrlf false
+
 ## Using HTTPS
 If you want to use HTTPS:
 1. Put your .pem and .pem in a directory called 'certs' under the project root folder
