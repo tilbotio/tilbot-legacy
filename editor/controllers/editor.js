@@ -4,6 +4,14 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
   return class EditorController {
 
     constructor() {
+
+      var urlparts = document.URL.split('/');
+      this.project_id = urlparts[urlparts.length-1];
+
+      if (this.project_id.length != 32) {
+        window.location.href = '/login/';
+      }
+
       this.blockControllers = {};
       this.block_dragging = false;
 
@@ -12,29 +20,54 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
 
       var self = this;
 
+      // @TODO: active/inactive projects
+      $.get('/api/get_project', { id: this.project_id }, function(data) {
+        console.log(data);
+        if (data == 'NOK') {
+          window.location.href = '/login/';
+        }
+        else {
+          require(['jqueryui'], function() {
+            require(['jqueryuitouch'], function() {
+              self.editorTemplate = Handlebars.compile(view);
+              self.render();
+  
+              self.editBlockController = new EditBlockController();
+              self.editBlockController.subscribe(self);
+              self.newBlockController = new NewBlockController();
+              self.newBlockController.subscribe(self);
+  
+              self.startingPointController = new StartingPointController();
+              self.startingPointController.subscribe(self);
+  
+              self.minimapController = new MinimapController();
+              self.minimapController.subscribe(self);
+  
+              // @TODO: only do this if new project
+              for (var b in data.blocks) {
+                data.blocks[b] = JSON.parse(data.blocks[b]);
+                data.blocks[b].x = parseFloat(data.blocks[b].x);
+                data.blocks[b].y = parseFloat(data.blocks[b].y);
 
-      require(['jqueryui'], function() {
-          require(['jqueryuitouch'], function() {
-            self.editorTemplate = Handlebars.compile(view);
-            self.render();
+                for (var c in data.blocks[b].connectors) {
+                  for (var t in data.blocks[b].connectors[c].targets) {
+                    data.blocks[b].connectors[c].targets[t] = parseInt(data.blocks[b].connectors[c].targets[t]);
+                  }
+                }
+              }
 
-            self.editBlockController = new EditBlockController();
-            self.editBlockController.subscribe(self);
-            self.newBlockController = new NewBlockController();
-            self.newBlockController.subscribe(self);
+              console.log(data);
 
-            self.startingPointController = new StartingPointController();
-            self.startingPointController.subscribe(self);
-
-            self.minimapController = new MinimapController();
-            self.minimapController.subscribe(self);
-
-            // @TODO: only do this if new project
-            self.projectController.set_canvas_size($('#editor_panel').width(), $('#editor_panel').height());
-
-            self.bindEvents();
+              self.load_project(self, data);
+              //self.projectController.set_canvas_size($('#editor_panel').width(), $('#editor_panel').height());
+  
+              self.bindEvents();
+            });
           });
+        }
       });
+
+
 
     }
 
@@ -304,6 +337,57 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
       downloadAnchorNode.remove();
     }
 
+    load_project(self, json, send_to_server = false) {
+      console.log(json);
+      $.when(self.projectController.load_project(json)).then(function() {
+        var project = self.projectController.project;
+        $('#editor_panel').css('width', project.canvas_width + 'px');
+        $('#editor_panel').css('height', project.canvas_height + 'px');
+        $('#project_title').text(project.name);
+
+        // Add block visuals
+        for (const [key, value] of Object.entries(project.blocks)) {
+          self.blockControllers[key] = new BlockController(key, value);
+          self.blockControllers[key].subscribe(self);
+        }
+
+        // Add line to starting point
+        if (project.starting_block_id != -1) {
+          self.startingPointController.draw_full_line(project.starting_block_id, project.blocks[project.starting_block_id].x, project.blocks[project.starting_block_id].y);
+        }
+
+        // Add lines connecting to other blocks
+        for (const [key, value] of Object.entries(project.blocks)) {
+          for (const [ckey, cvalue] of Object.entries(value.connectors)) {
+            for (const [tkey, tvalue] of Object.entries(cvalue.targets)) {
+                self.blockControllers[key].draw_full_line(ckey, tvalue, project.blocks[tvalue].x, project.blocks[tvalue].y);
+            }
+          }
+        }
+
+        // Update minimap
+        self.minimapController.update_minimap();
+
+        self.no_selection();
+
+        if (send_to_server) {
+          console.log(self.projectController.project);
+          console.log(JSON.stringify(self.projectController.project.toJSON()));
+
+          // Upload the imported project to the database
+          $.post('/api/import_project',
+          {
+            project: JSON.stringify(self.projectController.project.toJSON()),
+            project_id: self.project_id
+          },
+          function(res) {
+            console.log(res);
+          });          
+        }
+      });
+
+    }
+
     // Source: https://stackoverflow.com/questions/793014/jquery-trigger-file-input
     import_project(event) {
       $('#jsonfileinput').trigger('click');
@@ -316,39 +400,9 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
         reader.onload = function(load_event) {
           // @TODO: empty canvas first before loading?
 
-          $.when(event.data.self.projectController.load_project(load_event.target.result)).then(function() {
-            var project = event.data.self.projectController.project;
-            $('#editor_panel').css('width', project.canvas_width + 'px');
-            $('#editor_panel').css('height', project.canvas_height + 'px');
-            $('#project_title').text(project.name);
-
-            // Add block visuals
-            for (const [key, value] of Object.entries(project.blocks)) {
-              event.data.self.blockControllers[key] = new BlockController(key, value);
-              event.data.self.blockControllers[key].subscribe(event.data.self);
-            }
-
-            // Add line to starting point
-            if (project.starting_block_id != -1) {
-              event.data.self.startingPointController.draw_full_line(project.starting_block_id, project.blocks[project.starting_block_id].x, project.blocks[project.starting_block_id].y);
-            }
-
-            // Add lines connecting to other blocks
-            for (const [key, value] of Object.entries(project.blocks)) {
-              for (const [ckey, cvalue] of Object.entries(value.connectors)) {
-                for (const [tkey, tvalue] of Object.entries(cvalue.targets)) {
-                    event.data.self.blockControllers[key].draw_full_line(ckey, tvalue, project.blocks[tvalue].x, project.blocks[tvalue].y);
-                }
-              }
-            }
-
-            // Update minimap
-            event.data.self.minimapController.update_minimap();
-
-            event.data.self.no_selection();
-          });
-
+          event.data.self.load_project(event.data.self, JSON.parse(load_event.target.result), true);        
         };
+
         reader.readAsText(event.target.files[0]);
       }
     }

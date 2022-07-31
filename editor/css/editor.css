@@ -48,6 +48,10 @@ body {
   pointer-events: auto;
 }
 
+#logo {
+  pointer-events: auto;
+}
+
 #btn_edit_title, #btn_save_title {
   margin-top: 27px;
   cursor: pointer;

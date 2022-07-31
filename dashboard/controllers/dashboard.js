@@ -9,8 +9,6 @@ define(["jquery", "jqueryui"], function($, ui) {
 
     get_data() {
       var self = this;
-      var total_active = 0;
-      var total_projects = 0;
 
       $('.user_row').remove();
 
@@ -22,7 +20,9 @@ define(["jquery", "jqueryui"], function($, ui) {
           $('#dashboard_header').text('Welcome, ' + data_json.username + '!');
 
           if (data_json.users !== undefined) {
-            
+            var total_active = 0;
+            var total_projects = 0;
+                  
             for (var u in data_json.users) {
               var line = `        <tr class="user_row">`;
 
@@ -66,6 +66,60 @@ define(["jquery", "jqueryui"], function($, ui) {
             $('.btn_user_active').on('click', { self: self, active: true }, self.set_user_active);
       
           }
+
+          if (data_json.projects !== undefined) {
+            var total_active = 0;
+
+            if (data_json.projects.length == 0) {
+              $('#no_projects').show();
+              $('#dashboard_projects table').hide();
+            }
+            
+            else {
+              $('#no_projects').hide();
+              $('#dashboard_projects table').show();
+
+              for (var p in data_json.projects) {
+                var line = `        <tr class="project_row" data-id="` + data_json.projects[p].id + `">
+                <td>` + data_json.projects[p].name + `</td>`;
+
+                if (data_json.projects[p].status == 1) {
+                  total_active += 1;
+
+                  line += `                  <td style="text-align: center">Running</td>
+                  <td style="text-align: center"><i class="fa-solid fa-pause btn_pause"></i></td>
+                  <td style="width: 99%; white-space: inherit">&nbsp;</td>
+                  <td style="text-align: center"><i class="fa-solid fa-comment btn_view"></i></td>`;
+                }
+                else {
+                  line += `                  <td style="text-align: center">Paused</td>
+                  <td style="text-align: center"><i class="fa-solid fa-play btn_start"></i></td>
+                  <td style="width: 99%; white-space: inherit">&nbsp;</td>
+                  <td style="text-align: center"><i class="fa-solid fa-comment btn_view_disabled"></i></td>`;
+                }
+                  
+                line += `                  <td style="text-align: center; padding-right: 64px"><i class="fa-solid fa-pencil btn_edit"></i></td>
+                <td style="text-align: center"><i class="fa-solid fa-trash btn_delete"></i></td>
+                </tr>`;
+                    
+                $(line).appendTo('#dashboard_projects table tbody');
+              }
+  
+              $(`        <tr class="project_row" style="border-top: 4px solid #000">
+              <td>` + total_active + `</td>
+              <td colspan="6">&nbsp;</td>
+            </tr>`).appendTo('#dashboard_projects table tbody');
+  
+              $('.btn_edit').on('click', { self: self, active: false }, self.edit_project);
+              //$('.btn_user_active').on('click', { self: self, active: true }, self.set_user_active);              
+
+            }
+
+            $('#dashboard_header_projects').show();
+            $('#dashboard_header_projects').click();
+          
+          }
+
         }
         catch(e) {
           console.log('error: ' + data);
@@ -80,6 +134,7 @@ define(["jquery", "jqueryui"], function($, ui) {
       $('.dashboard_header').on('click', { self: this }, this.toggle_header);
       $('#new_user_button').on('click', { self: this }, this.popup_new_user);
       $('#overlay').on('click', { self: this }, this.close_overlay);
+      $('#new_project_button').on('click', { self: this }, this.new_project);
 
       $('input').on('keypress', { self: this }, this.keypress);
     }
@@ -141,6 +196,18 @@ define(["jquery", "jqueryui"], function($, ui) {
           }
         });
       }
+    }
+
+    new_project(e) {
+      $.post('/api/create_project', function(res) {
+        if (res.id !== undefined) {
+          window.location.href = '/edit/' + res.id;
+        }
+      });
+    }
+
+    edit_project(e) {
+      window.location.href = '/edit/' + $(this).closest('tr').attr('data-id');
     }
 
     add_user(e) {

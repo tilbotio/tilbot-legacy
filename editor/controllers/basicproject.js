@@ -50,7 +50,7 @@ function(Project) {
       var self = this;
       var dfd = $.Deferred();
 
-      $.when(Project.fromJSON(JSON.parse(json_str))).then(function(project) {
+      $.when(Project.fromJSON(/*JSON.parse(*/json_str/*)*/)).then(function(project) {
         self.project = project;
         dfd.resolve();
       });

@@ -17,13 +17,14 @@ requirejs.config({
     Observable: 'shared/controllers/observable',
 
     UserApiController: 'api/user',
+    ProjectApiController: 'api/project',
 
     ProjectSchema: 'shared/models/db/project',
     UserSchema: 'shared/models/db/user'
   }
 });
 
-requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'RemoteProjectServer', 'UserApiController', 'jquery-deferred'], function(process, fs, http, https, path, express, session, mongodbsession, bodyparser, socket, mongoose, RemoteProjectServer, UserApiController, $) {
+requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'RemoteProjectServer', 'UserApiController', 'ProjectApiController', 'jquery-deferred'], function(process, fs, http, https, path, express, session, mongodbsession, bodyparser, socket, mongoose, RemoteProjectServer, UserApiController, ProjectApiController, $) {
   /*
    * jquery-deferred is needed on the server-side because some shared modules
    * use it to dynamically require files. Can perhaps be cleaned up a bit in the future.
@@ -93,7 +94,7 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session
     });
 
     // Editor route
-    app.get('/edit', (req, res) => {
+    app.get('/edit/*', (req, res) => {
       res.sendFile(path.join(__dirname, '/editor/index.html'));
     });
 
@@ -171,7 +172,10 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session
               });
             }
             else { // regular user, retrieve projects
-              res.send(JSON.stringify(data));
+              ProjectApiController.get_projects(req.session.username).then(function(projects) {
+                data.projects = projects;
+                res.send(JSON.stringify(data));
+              });
             }
           }
           // An invalid username is somehow in the session
@@ -266,6 +270,88 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session
         }
       });
     });
+
+    /**
+     * API call: create a new project
+     * Can only be used by users with the regular role (1)
+     */
+     app.post('/api/create_project', async (req, res) => {
+      res.status(200);
+
+      UserApiController.get_user(req.session.username).then(function(user) {
+        if (user !== null) {
+          if (user.role == 1) {
+            ProjectApiController.create_project(req.session.username).then(function(response) {
+              if (response.code === undefined) {
+                res.send(response);
+              }
+              else if (response.code == 11000) {
+                res.send('PROJECT_EXISTS');
+              }
+              else {
+                res.send('NOK');
+              }
+            });
+          }
+          else {
+            res.send('USER_INCORRECT_ROLE');
+          }
+        }
+        else {
+          res.send('USER_NOT_FOUND');
+        }
+      });
+    });    
+
+    // API call: get a single project
+    app.get('/api/get_project', async (req, res) => {
+      res.status(200);
+
+      UserApiController.get_user(req.session.username).then(function(user) {
+        if (user !== null) {
+          if (user.role == 1) {
+            ProjectApiController.get_project(req.query.id, req.session.username).then(function(response) {
+              console.log(response);
+              if (response == null) {
+                res.send('NOK')
+              }
+              else {
+                res.send(response);
+              }
+            });
+          }
+          else {
+            res.send('NOK');
+          }
+        }
+        else {
+          res.send('NOK');
+        }
+      });
+
+    });
+
+    // API call: import a project, replacing the original
+    app.post('/api/import_project', async (req, res) => {
+      res.status(200);
+      
+      UserApiController.get_user(req.session.username).then(function(user) {
+        if (user !== null) {
+          if (user.role == 1) {
+            ProjectApiController.import_project(req.body.project, req.body.project_id, req.session.username).then(function(response) {
+              res.send(response);
+            });
+          }
+          else {
+            res.send('NOK');
+          }
+        }
+        else {
+          res.send('NOK');
+        }
+      });
+
+    });    
 
     // Indicate directories for static linking of files (css, js, images)
     app.use(express.static('shared'));

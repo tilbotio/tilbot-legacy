@@ -222,38 +222,39 @@ h1 {
   display: none;
 }
 
-#dashboard_users table {
+#dashboard_users table, #dashboard_projects table {
   width: 100%;
   border-collapse: collapse;
 }
 
-#dashboard_users th {
+#dashboard_users th, #dashboard_projects th {
   font-weight: bold;
   text-align: left;
 }
 
-#dashboard_users th, #dashboard_users td {
+#dashboard_users th, #dashboard_users td, #dashboard_projects th, #dashboard_projects td {
   padding: 12px;
   white-space: nowrap;
 }
 
-#dashboard_users th:not(:last-child), #dashboard_users td:not(:last-child) {
+#dashboard_users th:not(:last-child), #dashboard_users td:not(:last-child), 
+#dashboard_projects th:not(:last-child), #dashboard_projects td:not(:last-child) {
   padding-right: 64px;
 }
 
-#dashboard_users tr:nth-child(even) {
+#dashboard_users tr:nth-child(even), #dashboard_projects tr:nth-child(even) {
   background-color: #EBEBEB;
 }
 
-#dashboard_users tr:last-child {
+#dashboard_users tr:last-child, #dashboard_projects tr:last-child {
   background-color: #ffffff;
 }
 
-.btn_user_inactive, .btn_user_active {
+.btn_user_inactive, .btn_user_active, .btn_edit {
   cursor: pointer;
 }
 
-#new_user_button {
+#new_user_button, #new_project_button {
   border-radius: 50%;
   background-color: #000000;
   width: 48px;
@@ -314,6 +315,11 @@ h1 {
 
 #new_user_popup .dashboard_message_container {
   width: 100%;
+}
+
+#no_projects {
+  text-align: center;
+  margin-bottom: 32px;
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
