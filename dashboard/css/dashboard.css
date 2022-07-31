@@ -1,3 +1,25 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+
+}
+
+*[contenteditable="true"] {
+  -webkit-touch-callout: default; /* iOS Safari */
+    -webkit-user-select: text; /* Safari */
+     -khtml-user-select: text; /* Konqueror HTML */
+       -moz-user-select: text; /* Old versions of Firefox */
+        -ms-user-select: text; /* Internet Explorer/Edge */
+            user-select: text; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
 #dashboard_users {
   display: none;
 }
@@ -5,3 +27,293 @@
 #dashboard_projects {
   display: none;
 }
+
+button {
+  text-transform: uppercase;
+  color: #ffffff;
+  background-color: #13171E;
+  border-radius: 4px;
+  padding-left: 24px;
+  padding-right: 24px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  display: inline-block;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+#dashboard_logo img {
+  height: 72px;
+  margin-top: 8px;
+  margin-left: 8px;
+}
+
+#dashboard_header {
+  position: relative;
+  width: 50%;
+  margin: auto;
+  top: -55px;
+  font-size: 16pt;
+}
+
+#login_container {
+  width: 50%;
+  margin: auto;
+}
+
+.form_row {
+  margin-bottom: 16px;
+  width: 100%;
+  float: left;
+}
+
+.form_icon, .form_name, .form_name_long, .form_field {
+  float: left;
+}
+
+.form_icon {
+  width: 28px;
+}
+
+.form_name {
+  width: 96px;
+}
+
+.form_name_long {
+  width: 158px;
+}
+
+.form_field input {
+  width: 148px;
+}
+
+#btn_login {
+  margin-left: 124px;
+  width: 156px;
+}
+
+#btn_update_pass {
+  margin-left: 186px;
+  width: 156px;
+}
+
+#message_container {
+  height: 112px;
+  width: 50%;
+  margin: auto;
+  font-size: 10pt;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.dashboard_message_container {
+  height: 46px;
+  width: 50%;
+  font-size: 10pt;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.message_warning_container, .message_error_container {
+  float: left;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  margin-left: -16px;
+  width: 100%;
+}
+
+.message_warning_container {
+  background-color: #FFF0E2;
+}
+
+#pass_warning {
+  display: none;
+}
+
+#pass_error {
+  display: none;
+}
+
+.message_error_container {
+  background-color: #FFE5E2;
+}
+
+.message_icon {
+  width: 24px;
+  float: left;
+  height: 100%;
+}
+
+.message_text {
+  float: left;
+  width: calc(100% - 24px);
+}
+
+#login_error {
+  display: none;
+}
+
+#dashboard_logout {
+  position: absolute;
+  right: 24px;
+  top: 36px;
+}
+
+#dashboard_logout a {
+  color: #000;
+  text-decoration: none;
+}
+
+.dashboard_header {
+  background-color: #000;
+  color: #fff;
+  margin-left: 8px;
+  margin-right: 8px;
+  height: 40px;
+  cursor: pointer;
+}
+
+h1 {
+  font-size: 16pt;
+  font-weight: 300;
+  padding-top: 4px;
+}
+
+.dashboard_header_caret, .dashboard_header_icon {
+  float: left;
+  font-size: 12pt;
+}
+
+.dashboard_header_caret_right, .dashboard_header_caret_down {
+  margin-left: 24px;
+  margin-top: 10px;
+  margin-right: 100px;
+  width: 24px;
+  float: left;
+}
+
+.dashboard_header_caret_down {
+  display: none;
+}
+
+.dashboard_header_icon {
+  margin-right: 24px;
+  margin-top: 8px;
+  width: 20px;
+}
+
+.dashboard_section {
+  display: none;
+  padding: 24px;
+}
+
+.dashboard_section h2 {
+  margin-top: 8px;
+  font-weight: normal;
+  font-size: 16pt;
+  margin-left: 186px;
+}
+
+#dashboard_header_users, #dashboard_header_projects {
+  display: none;
+}
+
+#dashboard_users table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#dashboard_users th {
+  font-weight: bold;
+  text-align: left;
+}
+
+#dashboard_users th, #dashboard_users td {
+  padding: 12px;
+  white-space: nowrap;
+}
+
+#dashboard_users th:not(:last-child), #dashboard_users td:not(:last-child) {
+  padding-right: 64px;
+}
+
+#dashboard_users tr:nth-child(even) {
+  background-color: #EBEBEB;
+}
+
+#dashboard_users tr:last-child {
+  background-color: #ffffff;
+}
+
+.btn_user_inactive, .btn_user_active {
+  cursor: pointer;
+}
+
+#new_user_button {
+  border-radius: 50%;
+  background-color: #000000;
+  width: 48px;
+  height: 48px;
+  font-size: 24pt;
+  font-weight: bold;
+  color: #ffffff;
+  box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+  cursor: pointer;
+  text-align: center;
+  box-sizing: border-box;
+  padding-top: 2px;
+  margin-left: calc(100% - 64px);
+}
+
+#overlay {
+  background-color: #000000;
+  opacity: 0.4;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  position: fixed;
+  z-index: 1002;
+  display: none;
+}
+
+#new_user_popup {
+  position: fixed;
+  width: 400px;
+  left: calc(50% - 200px);
+  height: 300px;
+  top: calc(50% - 150px);
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+  z-index: 1003;
+  display: none;
+  padding: 16px;  
+}
+
+#new_user_error {
+  margin-left: 0px;
+  display: none;
+}
+
+#new_user_popup .form_row {
+  margin-left: 16px;
+}
+
+#new_user_popup h2 {
+  font-weight: normal;
+  font-size: 16pt;
+}
+
+#btn_add_user {
+  margin-left: 140px;
+}
+
+#new_user_popup .dashboard_message_container {
+  width: 100%;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');

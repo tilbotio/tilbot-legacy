@@ -25,18 +25,24 @@ define("UserApiController", ["UserSchema"], function(UserSchema) {
     }
 
     /**
-     * Retrieve all active users from database (role 1, not admin).
+     * Retrieve all users from database (role 1, not admin).
      *
      * @return {string[]} Array of usernames present in database.
      */
     static get_users() {
       return new Promise(resolve => {
-        UserSchema.find({ role: 1, active: true }).then(function(users) {
+        UserSchema.find({ role: 1 }).then(function(users) {
           var users_return = [];
 
           for (var u in users) {
-            users_return.push(users[u].username);
+            users_return.push({
+              username: users[u].username,
+              active: users[u].active
+              });
           }
+
+          users_return.sort((a, b) => (a.username > b.username) ? 1 : -1);
+
           resolve(users_return);
         });
       });
@@ -87,12 +93,65 @@ define("UserApiController", ["UserSchema"], function(UserSchema) {
         schema.username = user;
         schema.password = pass;
         schema.role = role;
-        schema.save().then(function() {
-          resolve('OK')
+        schema.save().then(function(e) {
+          resolve(e);
         }).catch(function(error) {
           resolve(error);
         });
       });
+    }
+
+    /**
+     * Change an account's password.
+     *
+     * @param {string} user - Username
+     * @param {string} oldpass - Original password
+     * @param {string} newpass - New password
+     */    
+    static update_password(user, oldpass, newpass) {
+      return new Promise(resolve => {
+        UserSchema.findOne({ username: user, active: true }).then(function(schema) {
+          if (schema != null) {
+
+            schema.verifyPassword(oldpass)
+            .then(function(valid) {
+              if (valid) {
+                schema.password = newpass;
+                schema.save().then(function() {
+                  resolve(true);
+                });                
+              }
+              else {
+                resolve(false);
+              }
+            })
+            .catch(function(err) {
+              console.log(err);
+              resolve(false);
+            });
+          }
+        });        
+      })
+    }
+
+    /**
+     * Set a user to active or inactive status.
+     * Used to delete users without permanently deleting them.
+     *
+     * @param {string} user - Username
+     * @param {boolean} active - true if needs to be set to active, false for inactive
+     */    
+    static set_user_active(username, active) {
+      return new Promise(resolve => {
+        UserSchema.findOne({ username: username }).then(function(schema) {
+          if (schema != null) {
+            schema.active = active;
+            schema.save().then(function() {
+              resolve(active);
+            });            
+          }
+        });        
+      })
     }
   }
 

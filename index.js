@@ -160,16 +160,18 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session
       }
 
       else {
+        var data = {'username': req.session.username};
+
         UserApiController.get_user(req.session.username).then(function(user) {
           if (user !== null) {
             if (user.role == 99) { // admin, retrieve user accounts
               UserApiController.get_users().then(function(users) {
-                var data = {'users': users};
+                data.users = users;
                 res.send(JSON.stringify(data));
               });
             }
             else { // regular user, retrieve projects
-
+              res.send(JSON.stringify(data));
             }
           }
           // An invalid username is somehow in the session
@@ -190,9 +192,12 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session
       UserApiController.get_user(req.session.username).then(function(user) {
         if (user !== null) {
           if (user.role == 99) { // admin, retrieve user accounts
-            UserApiController.create_account(req.body.username, req.body.password, 1).then(function(success) {
-              if (success) {
+            UserApiController.create_account(req.body.username, req.body.password, 1).then(function(response) {
+              if (response.code === undefined) {
                 res.send('OK');
+              }
+              else if (response.code == 11000) {
+                res.send('USER_EXISTS');
               }
               else {
                 res.send('NOK');
@@ -224,6 +229,40 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session
 
         else {
           res.send('NOK');
+        }
+      });
+    });
+
+    /**
+     * API call: change a user's password
+     */
+    app.post('/api/change_pass', async (req, res) => {
+      res.status(200);
+
+      UserApiController.update_password(req.session.username, req.body.oldpass, req.body.newpass).then(function(success) {
+        res.send(success);
+      })
+    });
+
+    /**
+     * API call: change a user's status (active/inactive)
+     */
+     app.post('/api/set_user_active', async (req, res) => {
+      res.status(200);
+
+      UserApiController.get_user(req.session.username).then(function(user) {
+        if (user !== null) {
+          if (user.role == 99) { // admin, retrieve user accounts
+            UserApiController.set_user_active(req.body.username, req.body.active).then(function(response) {
+              res.send('OK');
+            });
+          }
+          else {
+            res.send('USER_NOT_ADMIN');
+          }
+        }
+        else {
+          res.send('USER_NOT_FOUND');
         }
       });
     });

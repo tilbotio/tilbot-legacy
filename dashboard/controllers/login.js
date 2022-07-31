@@ -18,6 +18,7 @@ define(["jquery"], function($) {
     }
 
     login(e) {
+      $('#login_error').hide();
       var username = $('#txt_username').val().trim();
       var password = $('#txt_pass').val().trim();
 
@@ -28,9 +29,11 @@ define(["jquery"], function($) {
             password: password
           },
           function(res) {
-            console.log(res);
             if (res == 'OK') {
               window.location.replace('/dashboard');
+            }
+            else {
+              $('#login_error').show();
             }
           }
         );

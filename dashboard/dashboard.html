@@ -14,37 +14,141 @@
     <script data-main="/dashboard/app" src="/vendor/require.min.js"></script>
   </head>
   <body>
-    You have reached the dashboard!<br /><br />
+    <div id="dashboard_logo">
+      <img src="/dashboard/img/tilbot_logo.svg" alt="Tilbot logo" />
+    </div>
+    <div id="dashboard_header">
+    </div>
+    <div id="dashboard_logout">
+      <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Log out</a>
+    </div>
 
-    <div id="dashboard_account">
-      <h1>Manage account</h1>
+    <div class="dashboard_header" id="dashboard_header_account">
+      <div class="dashboard_header_caret_right">
+        <i class="fa-solid fa-caret-right"></i>
+      </div>
+      <div class="dashboard_header_caret_down">
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+      <div class="dashboard_header_icon">
+        <i class="fa-solid fa-user"></i>
+      </div>
+      <h1>Your account</h1>
+    </div>
+    <div id="dashboard_account" class="dashboard_section">
+      <h2>Change your password</h2>
 
-      <h2>Change password</h2>
-      Old password <input id="txt_old_pass" type="password" /><br /><br />
-      New password <input id="txt_new_pass" type="password" /><br />
-      New password (again, just to be sure) <input id="txt_new_pass2" type="password" /><br /><br />
+      <div class="form_row">
+        <div class="form_icon"><i class="fa-solid fa-lock-open"></i></div>
+        <div class="form_name_long">Old password</div>
+        <div class="form_field"><input id="txt_old_pass" type="password" /></div>
+      </div>
+      <div class="dashboard_message_container">
+
+        <div class="message_warning_container" id="pass_warning">
+          <div class="message_icon"><i class="fa-solid fa-info"></i></div>
+          <div class="message_text">
+            Your password has successfully been updated!
+          </div>
+        </div>
+
+        <div class="message_error_container" id="pass_error">
+          <div class="message_icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div class="message_text">
+            Incorrect username or password.
+          </div>
+        </div>
+  
+      </div>
+      <div class="form_row">
+        <div class="form_icon"><i class="fa-solid fa-key"></i></div>
+        <div class="form_name_long">New password</div>
+        <div class="form_field"><input id="txt_new_pass" type="password" /></div>
+      </div>
+      <div class="form_row">
+        <div class="form_icon"><i class="fa-solid fa-key"></i></div>
+        <div class="form_name_long">New password (again, to be sure)</div>
+        <div class="form_field"><input id="txt_new_pass2" type="password" /></div>
+      </div>
 
       <button type="button" id="btn_update_pass">Save</button>
     </div>
 
-    <div id="dashboard_users">
-      <h1>Manage users</h1>
-      <div id="dashboard_user_list">
+    <div class="dashboard_header" id="dashboard_header_users">
+      <div class="dashboard_header_caret_right">
+        <i class="fa-solid fa-caret-right"></i>
       </div>
+      <div class="dashboard_header_caret_down">
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+      <div class="dashboard_header_icon">
+        <i class="fa-solid fa-users"></i>
+      </div>
+      <h1>Users</h1>
+    </div>    
+    <div id="dashboard_users" class="dashboard_section">
+      <table cellspacing="0" cellpadding="0">
+        <tr>
+          <th>Username</th>
+          <th style="text-align: center">Active projects</th>
+          <th style="width: 99%; white-space: inherit">&nbsp;</th>
+          <th style="text-align: center">Delete</th>
+          <th style="text-align: center">Undelete</th>
+        </tr>
+      </table>
 
-      <h2>Add new user</h2>
-      Name <input id="txt_newuser_name" type="text" /><br />
-      Password <input id="txt_newuser_pass" type="password" /><br /><br />
-
-      <button type="button" id="btn_add_user">Add user</button>
+      <div id="new_user_button">
+        +
+      </div>      
     </div>
 
-    <div id="dashboard_projects">
+    <div class="dashboard_header" id="dashboard_header_projects">
+      <div class="dashboard_header_caret_right">
+        <i class="fa-solid fa-caret-right"></i>
+      </div>
+      <div class="dashboard_header_caret_down">
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+      <div class="dashboard_header_icon">
+        <i class="fa-solid fa-diagram-project"></i>
+      </div>
+      <h1>Projects</h1>
+    </div>       
+    <div id="dashboard_projects" class="dashboard_section">
       <h1>Projects</h1>
 
     </div>
 
-    <br /><br />
-    <a href="/logout">Log out!</a>
+    <div id="overlay">
+
+    </div>
+    <div id="new_user_popup">
+      <h2>Add new user</h2>
+
+      <div class="dashboard_message_container">
+
+        <div class="message_error_container" id="new_user_error">
+          <div class="message_icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div class="message_text">
+            An unknown error occurred.
+          </div>
+        </div>
+  
+      </div>
+
+      <div class="form_row">
+        <div class="form_icon"><i class="fa-solid fa-user"></i></div>
+        <div class="form_name">Name</div>
+        <div class="form_field"><input id="txt_newuser_name" type="text" /></div>
+      </div>
+      <div class="form_row">
+        <div class="form_icon"><i class="fa-solid fa-key"></i></div>
+        <div class="form_name">Password</div>
+        <div class="form_field"><input id="txt_newuser_pass" type="password" /></div>
+      </div>
+
+      <button type="button" id="btn_add_user">Add user</button>
+
+    </div>    
   </body>
 </html>

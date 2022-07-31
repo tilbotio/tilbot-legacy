@@ -1,32 +1,71 @@
-define(["jquery"], function($) {
+define(["jquery", "jqueryui"], function($, ui) {
 
   class DashboardController {
 
     constructor() {
       this.get_data();
+      this.bindEvents();
     }
 
     get_data() {
       var self = this;
+      var total_active = 0;
+      var total_projects = 0;
+
+      $('.user_row').remove();
 
       $.get('/api/get_dashboard', function(data) {
         try {
           var data_json = JSON.parse(data);
           console.log(data_json);
 
-          if (data_json.users !== undefined) {
-            // @TODO: add users to list so they can be managed
-            for (var u in data_json.users) {
-              $(`<div class="dashboard_user">
-                    ` + data_json.users[u] + `
-                 </div>`).appendTo('#dashboard_user_list');
+          $('#dashboard_header').text('Welcome, ' + data_json.username + '!');
 
+          if (data_json.users !== undefined) {
+            
+            for (var u in data_json.users) {
+              var line = `        <tr class="user_row">`;
+
+              if (data_json.users[u].active) {
+                total_active += 1;
+
+                line += `              <td class="user_name">` + data_json.users[u].username + `</td>
+                <td style="text-align: center">0</td>`;
+              }
+              else {
+                line += `              <td class="user_name" style="text-decoration: line-through">` + data_json.users[u].username + `</td>
+                <td style="text-decoration: line-through; text-align: center">0</td>`
+              }
+              
+              line += `<td style="width: 99%; white-space: inherit">&nbsp;</td>`;
+
+              if (data_json.users[u].active) {
+                line += `              <td style="text-align: center"><i class="fa-solid fa-user-large-slash btn_user_inactive"></i></td>
+                <td style="text-align: center">&nbsp;</td>`;
+              }
+              else {
+                line += `              <td style="text-align: center">&nbsp;</td>
+                <td style="text-align: center"><i class="fa-solid fa-user-plus btn_user_active"></i></td>`;
+              }
+              
+              line += `        </tr>`;
+
+              $(line).appendTo('#dashboard_users table tbody');
             }
 
-            $('#dashboard_users').show();
-          }
+            $(`        <tr class="user_row" style="border-top: 4px solid #000">
+            <td>` + total_active + `</td>
+            <td style="text-align: center">` + total_projects + `</td>
+            <td style="width: 99%; white-space: inherit">&nbsp;</td>
+            <td style="text-align: center">&nbsp;</td>
+            <td style="text-align: center">&nbsp;</td>
+          </tr>`).appendTo('#dashboard_users table tbody');
 
-          self.bindEvents();
+            $('#dashboard_header_users').show();
+            $('.btn_user_inactive').on('click', { self: self, active: false }, self.set_user_active);
+            $('.btn_user_active').on('click', { self: self, active: true }, self.set_user_active);
+      
+          }
         }
         catch(e) {
           console.log('error: ' + data);
@@ -36,11 +75,77 @@ define(["jquery"], function($) {
     }
 
     bindEvents() {
+      $('#btn_update_pass').on('click', { self: this }, this.update_pass);
       $('#btn_add_user').on('click', { self: this }, this.add_user);
-      //$('input').on('keypress', { self: this }, this.keypress)
+      $('.dashboard_header').on('click', { self: this }, this.toggle_header);
+      $('#new_user_button').on('click', { self: this }, this.popup_new_user);
+      $('#overlay').on('click', { self: this }, this.close_overlay);
+
+      $('input').on('keypress', { self: this }, this.keypress);
+    }
+    
+    popup_new_user(e) {
+      $('#new_user_error').hide();      
+      $('#txt_newuser_name').val('');
+      $('#txt_newuser_pass').val('');
+      $('#overlay').show();
+      $('#new_user_popup').show( "scale", 250, function() {
+        // Animation complete.
+      });
+    }
+
+    close_overlay(e) {
+      $('#overlay').hide();
+      $('#new_user_popup').hide( "scale", 250, function() {
+        // Animation complete.
+      });
+    }
+
+    keypress(e) {
+      if (e.which == 13) { // enter
+        if ($(this).attr('id') == 'txt_old_pass' || $(this).attr('id') == 'txt_new_pass' || $(this).attr('id') == 'txt_new_pass2') {
+          $('#btn_update_pass').focus().click();
+        }
+
+        else if ($(this).attr('id') == 'txt_newuser_name' || $(this).attr('id') == 'txt_newuser_pass') {
+          $('#btn_add_user').focus().click();
+        }
+      }
+    }    
+
+    update_pass(e) {
+      $('#pass_warning').hide();
+      $('#pass_error').hide();
+
+      var oldpass = $('#txt_old_pass').val().trim();
+      var newpass1 = $('#txt_new_pass').val().trim();
+      var newpass2 = $('#txt_new_pass2').val().trim();
+
+      if (newpass1 != newpass2) {
+        $('#pass_error .message_text').text('The two new passwords do not match.');
+        $('#pass_error').show();
+      }
+      else {
+        $.post('/api/change_pass',
+        {
+          oldpass: oldpass,
+          newpass: newpass1
+        },
+        function(res) {
+          if (res) {
+            $('#pass_warning').show();            
+          }
+          else {
+            $('#pass_error .message_text').text('Error changing password: did you enter the correct old password?');
+            $('#pass_error').show();
+          }
+        });
+      }
     }
 
     add_user(e) {
+      $('#new_user_error').hide();
+
       var username = $('#txt_newuser_name').val().trim();
       var password = $('#txt_newuser_pass').val().trim();
 
@@ -52,10 +157,54 @@ define(["jquery"], function($) {
           },
           function(res) {
             console.log(res);
+            if (res == 'OK') {
+              e.data.self.close_overlay();
+              e.data.self.get_data();
+            }
+            else if (res == 'USER_EXISTS') {
+              $('#new_user_error .message_text').text('A user with this username already exists.');
+              $('#new_user_error').show();
+            }
+            else {
+              $('#new_user_error .message_text').text('An unknown error occurred.');
+              $('#new_user_error').show();
+            }
           }
         );
       }
 
+      else {
+        $('#new_user_error .message_text').text('Username or password cannot be empty.');
+        $('#new_user_error').show();
+      }
+
+    }
+
+    set_user_active(e) {
+
+      $.post('/api/set_user_active',
+        {
+          active: e.data.active,
+          username: $(this).closest('tr').find('.user_name').text()
+        },
+        function(res) {
+          console.log(res);
+          e.data.self.get_data();
+        }
+      );      
+    }
+
+    toggle_header(e) {
+      var field = $(this).attr('id').replace('_header', '');
+      $(this).find('.dashboard_header_caret_right').toggle();
+      $(this).find('.dashboard_header_caret_down').toggle();
+
+      if($('#' + field).is(':hidden')) {
+        $('#' + field).slideDown();
+      }
+      else {
+        $('#' + field).slideUp();
+      }      
     }
 
   }

@@ -14,13 +14,38 @@
     <script data-main="/dashboard/app" src="/vendor/require.min.js"></script>
   </head>
   <body>
-    It appears that this is the first time you're using Tilbot.<br />
-    I have created the account <strong>admin</strong> for you with password <strong>admin</strong>.<br /><br />
-    Note that you can only use this account to create and manage user accounts, it cannot create projects.<br /><br />
+    <div id="dashboard_logo">
+      <img src="/dashboard/img/tilbot_logo.svg" alt="Tilbot logo" />
+    </div>
+    <div id="dashboard_header">
+      Login
+    </div>
 
-    Name <input id="txt_username" type="text" value="admin" /><br />
-    Password <input id="txt_pass" type="password" value="admin" /><br />
-    <button type="button" id="btn_login">Login</button>
+    <div id="message_container">
 
+      <div class="message_warning_container">
+        <div class="message_icon"><i class="fa-solid fa-info"></i></div>
+        <div class="message_text">
+          It appears that this is the first time you're using Tilbot.<br />
+          I have created the account <strong>admin</strong> for you with password <strong>admin</strong>.<br /><br />
+          Note that you can only use this account to create and manage user accounts, it cannot create projects.
+        </div>
+      </div>
+    </div>
+
+    <div id="login_container">
+      <div class="form_row">
+        <div class="form_icon"><i class="fa-solid fa-user"></i></div>
+        <div class="form_name">Name</div>
+        <div class="form_field"><input id="txt_username" type="text" value="admin" /></div>
+      </div>
+      <div class="form_row">
+        <div class="form_icon"><i class="fa-solid fa-key"></i></div>
+        <div class="form_name">Password</div>
+        <div class="form_field"><input id="txt_pass" type="password" value="admin" /></div>
+      </div>
+
+      <button type="button" id="btn_login">Log in</button>
+  </div>
   </body>
 </html>
