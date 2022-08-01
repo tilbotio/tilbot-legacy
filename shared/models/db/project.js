@@ -9,7 +9,7 @@ define("ProjectSchema", ["mongoose"], function(mongoose) {
     status: {type: Number, default: 0}, // 0 = paused, 1 = running
     current_block_id: {type: Number, default: 1},
     // Blocks are stored as JSON because they can have many different classes
-    blocks: {type: Map, of: String, default: () => ({})},
+    blocks: {type: Map, of: Schema.Types.Mixed, default: () => ({})},
     starting_block_id: {type: Number, default: -1},
     canvas_width: {type: Number, default: -1},
     canvas_height: {type: Number, default: -1},
@@ -30,7 +30,8 @@ define("ProjectSchema", ["mongoose"], function(mongoose) {
     for (const [key, value] of Object.entries(model.blocks)) {
       //schema.blocks[key] = JSON.stringify(value.toJSON());
       console.log(key);
-      schema.blocks.set(key, JSON.stringify(value.toJSON()));
+      //schema.blocks.set(key, JSON.stringify(value.toJSON()));
+      schema.blocks.set(key, value.toJSON());
     }
 
     console.log(schema.blocks);

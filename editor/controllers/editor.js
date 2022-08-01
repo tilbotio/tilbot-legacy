@@ -43,21 +43,6 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
               self.minimapController = new MinimapController();
               self.minimapController.subscribe(self);
   
-              // @TODO: only do this if new project
-              for (var b in data.blocks) {
-                data.blocks[b] = JSON.parse(data.blocks[b]);
-                data.blocks[b].x = parseFloat(data.blocks[b].x);
-                data.blocks[b].y = parseFloat(data.blocks[b].y);
-
-                for (var c in data.blocks[b].connectors) {
-                  for (var t in data.blocks[b].connectors[c].targets) {
-                    data.blocks[b].connectors[c].targets[t] = parseInt(data.blocks[b].connectors[c].targets[t]);
-                  }
-                }
-              }
-
-              console.log(data);
-
               self.load_project(self, data);
               //self.projectController.set_canvas_size($('#editor_panel').width(), $('#editor_panel').height());
   
