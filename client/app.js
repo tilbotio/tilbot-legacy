@@ -7,7 +7,6 @@ requirejs.config({
         jquery: 'vendor/jquery-3.6.0.min',
         jqueryui: 'vendor/jquery-ui-1.13.1.custom/jquery-ui.min',
         jqueryuitouch: 'vendor/jquery.ui.touch-punch.min',
-        socket: '/socket.io/socket.io',
 
         // Shared modules
         Util: 'util',

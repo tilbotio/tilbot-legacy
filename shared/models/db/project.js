@@ -13,7 +13,8 @@ define("ProjectSchema", ["mongoose"], function(mongoose) {
     starting_block_id: {type: Number, default: -1},
     canvas_width: {type: Number, default: -1},
     canvas_height: {type: Number, default: -1},
-    user_id: {type: String, required: true}
+    user_id: {type: String, required: true},
+    socket: {type: Number}
   });
 
   ProjectSchema.statics.fromModel = function(model) {

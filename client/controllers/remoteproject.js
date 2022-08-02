@@ -1,13 +1,18 @@
-define("RemoteProjectController", ["ProjectController", "socket"], function(ProjectController, io) {
+define("RemoteProjectController", ["ProjectController"], function(ProjectController) {
 
   return class RemoteProjectController extends ProjectController {
 
-    constructor() {
+    constructor(port) {
       super();
 
-      this.socket = io();
+      var self = this;
 
-      this.socket.on('bot message', this.message_received.bind(this));
+      // Some ugly URL rewriting here, not sure if it can be improved.
+      require([document.URL.substring(0, document.URL.length-33) + ':' + port + '/socket.io/socket.io.js'], function(io) {
+        self.socket = io(document.URL.substring(0, document.URL.length-33) + ':' + port);
+
+        self.socket.on('bot message', self.message_received.bind(self));  
+      });
     }
 
     message_received(params) {

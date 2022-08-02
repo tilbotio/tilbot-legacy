@@ -1,5 +1,5 @@
-define("ClientController", ["jquery", "handlebars", "TextClientController", "TextServerController", "TypingIndicatorController", "InputMCController", "InputListController", "LocalProjectController", "text!/client/views/client.html"],
-function($, Handlebars, TextClientController, TextServerController, TypingIndicatorController, InputMCController, InputListController, LocalProjectController, view) {
+define("ClientController", ["jquery", "handlebars", "TextClientController", "TextServerController", "TypingIndicatorController", "InputMCController", "InputListController", "LocalProjectController", "RemoteProjectController", "text!/client/views/client.html"],
+function($, Handlebars, TextClientController, TextServerController, TypingIndicatorController, InputMCController, InputListController, LocalProjectController, RemoteProjectController, view) {
 
   return class ClientController {
 
@@ -21,6 +21,30 @@ function($, Handlebars, TextClientController, TextServerController, TypingIndica
             self.inputMC = new InputMCController();
             self.inputMC.subscribe(self);
             self.inputList = new InputListController();
+
+            if (document.referrer == '' || !document.referrer.includes('/edit/')) {
+              var urlparts = document.URL.split('/');
+              self.project_id = urlparts[urlparts.length-1];
+        
+              if (self.project_id.length != 32) {
+                // @TODO: something
+              }
+  
+              else {
+                $.get('/api/get_socket', {
+                  id: self.project_id
+                }, function(socket) {
+                  console.log(socket);
+                  if (socket == '-1') {
+                    // @TODO: something
+                  }
+                  else {
+                    self.projectcontroller = new RemoteProjectController(socket);
+                    self.projectcontroller.subscribe(self);    
+                  }
+                });
+              }                
+            }      
 
             // Temporary fix to check whether we are in an iFrame.
             // If not (stand-alone), use remote project manager

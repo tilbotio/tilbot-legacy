@@ -4,7 +4,6 @@ var requirejs = require('requirejs');
 requirejs.config({
   nodeRequire: require,
   paths: {
-    RemoteProjectServer: 'client/remote/projectserver',
     Models: 'client/remote/dbmodels',
     Project: 'shared/models/project',
     BasicBlock: 'shared/models/basicblock',
@@ -24,7 +23,7 @@ requirejs.config({
   }
 });
 
-requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'RemoteProjectServer', 'UserApiController', 'ProjectApiController', 'jquery-deferred'], function(process, fs, http, https, path, express, session, mongodbsession, bodyparser, socket, mongoose, RemoteProjectServer, UserApiController, ProjectApiController, $) {
+requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'UserApiController', 'ProjectApiController', 'jquery-deferred'], function(process, fs, http, https, path, express, session, mongodbsession, bodyparser, socket, mongoose, UserApiController, ProjectApiController, $) {
   /*
    * jquery-deferred is needed on the server-side because some shared modules
    * use it to dynamically require files. Can perhaps be cleaned up a bit in the future.
@@ -88,11 +87,6 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session
     }));
 
     
-    // Main route -- load client (currently loads protocol.json)
-    app.get('/', (req, res) => {
-      res.sendFile(path.join(__dirname, '/client/index.html'));
-    });
-
     // Editor route
     app.get('/edit/*', (req, res) => {
       res.sendFile(path.join(__dirname, '/editor/index.html'));
@@ -353,9 +347,23 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session
 
     });    
 
+    // API call: retrieve a project's socket if active -- anyone can do this, no need to be logged in.
+    app.get('/api/get_socket', async (req, res) => {
+      res.status(200);
+
+      ProjectApiController.get_socket(req.query.id).then(function(response) {
+        res.send(response);
+      });
+    });
+
     // Indicate directories for static linking of files (css, js, images)
     app.use(express.static('shared'));
     app.use(express.static('.'));
+
+    // Main route -- load client (currently loads protocol.json)
+    app.get('/*', (req, res) => {
+      res.sendFile(path.join(__dirname, '/client/index.html'));
+    });
 
     if (use_https && fs.existsSync(__dirname + '/certs/privkey.pem') && fs.existsSync(__dirname + '/certs/fullchain.pem')) {
       var port = 443;

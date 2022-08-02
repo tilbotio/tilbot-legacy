@@ -109,6 +109,26 @@ define("ProjectApiController", ["ProjectSchema", "Project", "crypto-js/md5"], fu
             });
             });
         }
+
+        /**
+         * Retrieve the socket for a particular project.
+         *
+         * @param {string} project_id - Project ID
+         * @return {integer} Socket of the retrieved project, or -1 if the project is not found.
+         */        
+        static get_socket(project_id) {
+            return new Promise(resolve => {
+                // @TODO: active projects only
+                ProjectSchema.findOne({ id: project_id }).then(function(project) {
+                    if (project === null) {
+                        resolve('-1');
+                    }
+                    else {
+                        resolve(project.socket.toString());
+                    }
+                });
+            });
+        }
         
     }
 
