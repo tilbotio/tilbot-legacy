@@ -23,18 +23,28 @@ requirejs.config({
   }
 });
 
-requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'UserApiController', 'ProjectApiController', 'jquery-deferred'], function(process, fs, http, https, path, express, session, mongodbsession, bodyparser, socket, mongoose, UserApiController, ProjectApiController, $) {
+requirejs(['process', 'fs', 'http', 'https', 'path', 'child_process', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'UserApiController', 'ProjectApiController', 'jquery-deferred'], function(process, fs, http, https, path, child_process, express, session, mongodbsession, bodyparser, socket, mongoose, UserApiController, ProjectApiController, $) {
+  var use_https = false;
+
+  if (process.env.USE_HTTPS != undefined) {
+    use_https = (process.env.USE_HTTPS == 1);
+  }
+
   /*
    * jquery-deferred is needed on the server-side because some shared modules
    * use it to dynamically require files. Can perhaps be cleaned up a bit in the future.
   */
   this.$ = $;
 
-  var use_https = false;
+  // Keep track of running external processes for bots.
+  this.running_bots = {};
 
-  if (process.env.USE_HTTPS != undefined) {
-    use_https = (process.env.USE_HTTPS == 1);
-  }
+  // Launch all running bots
+  ProjectApiController.get_running_projects().then(function(projects) {
+    for (var p in projects) {
+      this.start_bot(projects[p].id);
+    }
+  });
 
   // Create the server
   var app = express();
@@ -355,6 +365,65 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'express', 'express-session
         res.send(response);
       });
     });
+
+    // API call: change the status of a project (0 = paused, 1 = running)
+    app.post('/api/set_project_status', async (req, res) => {
+      res.status(200);
+
+      UserApiController.get_user(req.session.username).then(function(user) {
+        if (user !== null) {
+          if (user.role == 1) {
+            ProjectApiController.get_project(req.body.projectid, req.session.username).then(function(response) {
+              if (response != null) {
+                ProjectApiController.set_project_status(req.body.projectid, req.body.status).then(function(response) {
+                  if (response) {
+                    if (req.body.status == 1) {
+                      this.start_bot(req.body.projectid);
+                    }
+                    else {                      
+                      this.stop_bot(req.body.projectid);
+                    }          
+                    res.send('OK');
+                  }
+                });
+              }
+              else {
+                res.send('NOK');
+              }
+            });
+          }
+        }
+      });
+    });
+
+    this.start_bot = function(projectid) {
+      // Check whether we are running in Docker or not
+      if (process.env.TILBOT_PORT != undefined) {
+        // @TODO
+      }
+      else {
+        this.running_bots[projectid] = child_process.fork('./clientsocket/index.js', [projectid], {
+          silent: true
+        });
+
+        this.running_bots[projectid].stdout.on('data', (data) => {
+          console.log(data.toString());
+        });
+      }
+    }
+
+    this.stop_bot = function(projectid) {
+      console.log(this.running_bots['bla']);
+      if (this.running_bots[projectid] !== undefined) {
+        // Check whether we are running in Docker or not
+        if (process.env.TILBOT_PORT != undefined) {
+          // @TODO
+        }
+        else {
+            this.running_bots[projectid].send('exit');
+        }
+      }  
+    }
 
     // Indicate directories for static linking of files (css, js, images)
     app.use(express.static('shared'));

@@ -11,11 +11,11 @@ define(["jquery", "jqueryui"], function($, ui) {
       var self = this;
 
       $('.user_row').remove();
+      $('.project_row').remove();
 
       $.get('/api/get_dashboard', function(data) {
         try {
           var data_json = JSON.parse(data);
-          console.log(data_json);
 
           $('#dashboard_header').text('Welcome, ' + data_json.username + '!');
 
@@ -89,13 +89,13 @@ define(["jquery", "jqueryui"], function($, ui) {
                   line += `                  <td style="text-align: center">Running</td>
                   <td style="text-align: center"><i class="fa-solid fa-pause btn_pause"></i></td>
                   <td style="width: 99%; white-space: inherit">&nbsp;</td>
-                  <td style="text-align: center"><i class="fa-solid fa-comment btn_view"></i></td>`;
+                  <td style="text-align: center"><i class="fa-solid fa-comment btn_view enabled"></i></td>`;
                 }
                 else {
                   line += `                  <td style="text-align: center">Paused</td>
                   <td style="text-align: center"><i class="fa-solid fa-play btn_start"></i></td>
                   <td style="width: 99%; white-space: inherit">&nbsp;</td>
-                  <td style="text-align: center"><i class="fa-solid fa-comment btn_view_disabled"></i></td>`;
+                  <td style="text-align: center"><i class="fa-solid fa-comment btn_view"></i></td>`;
                 }
                   
                 line += `                  <td style="text-align: center; padding-right: 64px"><i class="fa-solid fa-pencil btn_edit"></i></td>
@@ -110,13 +110,18 @@ define(["jquery", "jqueryui"], function($, ui) {
               <td colspan="6">&nbsp;</td>
             </tr>`).appendTo('#dashboard_projects table tbody');
   
-              $('.btn_edit').on('click', { self: self, active: false }, self.edit_project);
+              $('.btn_edit').on('click', { self: self }, self.edit_project);
+              $('.btn_start').on('click', { self: self, status: 1 }, self.toggle_status);
+              $('.btn_pause').on('click', { self: self, status: 0 }, self.toggle_status);
+              $('.btn_view.enabled').on('click', { self: self }, self.view_project);
               //$('.btn_user_active').on('click', { self: self, active: true }, self.set_user_active);              
 
             }
 
-            $('#dashboard_header_projects').show();
-            $('#dashboard_header_projects').click();
+            if ($('#dashboard_header_projects').is(':hidden')) {
+              $('#dashboard_header_projects').show();
+              $('#dashboard_header_projects').click();  
+            }
           
           }
 
@@ -208,6 +213,20 @@ define(["jquery", "jqueryui"], function($, ui) {
 
     edit_project(e) {
       window.location.href = '/edit/' + $(this).closest('tr').attr('data-id');
+    }
+
+    toggle_status(e) {
+      $.post('/api/set_project_status', {
+        projectid: $(this).closest('tr').attr('data-id'),
+        status: e.data.status
+      },
+      function(res) {
+        e.data.self.get_data();
+      });
+    } 
+    
+    view_project(e) {
+      window.location.href = '/' + $(this).closest('tr').attr('data-id');
     }
 
     add_user(e) {

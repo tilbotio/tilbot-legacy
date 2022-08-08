@@ -250,7 +250,15 @@ h1 {
   background-color: #ffffff;
 }
 
-.btn_user_inactive, .btn_user_active, .btn_edit {
+.btn_view {
+  color: #c5c5c5;
+}
+
+.btn_view.enabled {
+  color: #000000;
+}
+
+.btn_user_inactive, .btn_user_active, .btn_edit, .btn_view.enabled, .btn_pause, .btn_start {
   cursor: pointer;
 }
 

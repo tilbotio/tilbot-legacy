@@ -129,6 +129,41 @@ define("ProjectApiController", ["ProjectSchema", "Project", "crypto-js/md5"], fu
                 });
             });
         }
+
+        /**
+         * Retrieve all running bots.
+         *
+         */        
+         static get_running_projects() {
+            return new Promise(resolve => {
+                ProjectSchema.find({ status: 1 }).then(function(projects) {
+                    resolve(projects);
+                });
+            });
+        }        
+
+
+        /**
+         * Set the status of a project (running or paused).
+         *
+         * @param {string} project_id - Project ID
+         * @return {integer} The status that the project should be set to (0 = paused, 1 = running)
+         */        
+         static set_project_status(project_id, status) {
+            return new Promise(resolve => {
+                // @TODO: active projects only
+                ProjectSchema.findOne({ id: project_id }).then(function(project) {
+                    if (project === null) {
+                        resolve('NOK');
+                    }
+                    else {
+                        project.status = status;
+                        project.save();
+                        resolve('OK');
+                    }
+                });
+            });
+        }        
         
     }
 

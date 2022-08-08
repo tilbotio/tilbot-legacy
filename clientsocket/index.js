@@ -38,6 +38,13 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'socket.io', 'mongoose', 'P
     use_https = (process.env.USE_HTTPS == 1);
   }
 
+  // Allow parent process to terminate this one
+  process.on('message', function(message) {
+    if (message == 'exit') {
+      process.exit();
+    }
+  });  
+
   // Set up the MongoDB connection
   var dbPath = 'mongodb://localhost/tilbot';
   
@@ -53,7 +60,7 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'socket.io', 'mongoose', 'P
     console.log('MongoDB connected');
     
     // First try to retrieve project -- if it doesn't exist, stop creating socket.
-    ProjectSchema.findOne({'id': '6ee4f5e5a3b1c11e7724275948f4629b'}).then(function(project) {
+    ProjectSchema.findOne({'id': process.argv[2]}).then(function(project) {
         if (project === null) {
             console.log('Project not found -- exiting');
             process.exit();
