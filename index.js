@@ -23,7 +23,7 @@ requirejs.config({
   }
 });
 
-requirejs(['process', 'fs', 'http', 'https', 'path', 'child_process', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'UserApiController', 'ProjectApiController', 'jquery-deferred'], function(process, fs, http, https, path, child_process, express, session, mongodbsession, bodyparser, socket, mongoose, UserApiController, ProjectApiController, $) {
+requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'UserApiController', 'ProjectApiController', 'jquery-deferred'], function(process, fs, net, http, https, path, child_process, express, session, mongodbsession, bodyparser, socket, mongoose, UserApiController, ProjectApiController, $) {
   var use_https = false;
 
   if (process.env.USE_HTTPS != undefined) {
@@ -38,13 +38,6 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'child_process', 'express',
 
   // Keep track of running external processes for bots.
   this.running_bots = {};
-
-  // Launch all running bots
-  ProjectApiController.get_running_projects().then(function(projects) {
-    for (var p in projects) {
-      this.start_bot(projects[p].id);
-    }
-  });
 
   // Create the server
   var app = express();
@@ -68,6 +61,16 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'child_process', 'express',
   // Main MongoDB connection
   mongo.then(() => {
     console.log('MongoDB connected');
+
+    // If we are running in Docker, start the connection to the container that can fire up the bots in their own containers.
+    if (process.env.TILBOT_PORT != undefined) {
+      this.botlauncher = new net.Socket();
+      this.botlauncher.connect(1337, '10.0.0.2', function() {
+        console.log('Connected to bot launcher');
+        //client.write('het is jan');
+        //client.write('nog al eens');
+      });
+    }
 
     // Sessions
     const store = new MongoDBStore({
@@ -96,6 +99,12 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'child_process', 'express',
       saveUninitialized: true
     }));
 
+    // Launch all running bots
+    ProjectApiController.get_running_projects().then(function(projects) {
+      for (var p in projects) {
+        this.start_bot(projects[p].id);
+      }
+    });
     
     // Editor route
     app.get('/edit/*', (req, res) => {
@@ -377,6 +386,7 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'child_process', 'express',
               if (response != null) {
                 ProjectApiController.set_project_status(req.body.projectid, req.body.status).then(function(response) {
                   if (response) {
+                    console.log(req.body.status);
                     if (req.body.status == 1) {
                       this.start_bot(req.body.projectid);
                     }
@@ -399,7 +409,7 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'child_process', 'express',
     this.start_bot = function(projectid) {
       // Check whether we are running in Docker or not
       if (process.env.TILBOT_PORT != undefined) {
-        // @TODO
+        this.botlauncher.write('start ' + projectid);
       }
       else {
         this.running_bots[projectid] = child_process.fork('./clientsocket/index.js', [projectid], {
@@ -413,16 +423,15 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'child_process', 'express',
     }
 
     this.stop_bot = function(projectid) {
-      console.log(this.running_bots['bla']);
-      if (this.running_bots[projectid] !== undefined) {
-        // Check whether we are running in Docker or not
-        if (process.env.TILBOT_PORT != undefined) {
-          // @TODO
+      // Check whether we are running in Docker or not
+      if (process.env.TILBOT_PORT != undefined) {
+        this.botlauncher.write('stop ' + projectid);
+      }
+      else {
+        if (this.running_bots[projectid] !== undefined) {
+          this.running_bots[projectid].send('exit');
         }
-        else {
-            this.running_bots[projectid].send('exit');
-        }
-      }  
+      }
     }
 
     // Indicate directories for static linking of files (css, js, images)

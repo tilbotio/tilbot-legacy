@@ -10,9 +10,9 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
       MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
-      MONGO_INITDB_DATABASE: $MONGO_INITDB_DATABASE
-      MONGO_DATABASE_USERNAME: $MONGO_DATABASE_USERNAME
-      MONGO_DATABASE_PASSWORD: $MONGO_DATABASE_PASSWORD
+      MONGO_INITDB_DATABASE: $MONGO_DB
+      MONGO_DATABASE_USERNAME: $MONGO_USERNAME
+      MONGO_DATABASE_PASSWORD: $MONGO_PASSWORD
       MONGO_PORT: $MONGO_PORT
     volumes:
       - ./mongodb:/data/db
@@ -28,18 +28,40 @@ services:
       - 80:80
     networks:
       - tilbot-network
+      - internal-network
     build: ./
     command: "npm start"
     env_file: .env
     environment:
       NODE_ENV: "production"
-      MONGO_USERNAME: $MONGO_DATABASE_USERNAME
-      MONGO_PASSWORD: $MONGO_DATABASE_PASSWORD
+      MONGO_USERNAME: $MONGO_USERNAME
+      MONGO_PASSWORD: $MONGO_PASSWORD
       MONGO_PORT: $MONGO_PORT
-      MONGO_DB: $MONGO_INITDB_DATABASE
+      MONGO_DB: $MONGO_DB
       TILBOT_PORT: 80
       USE_HTTPS: 0
+
+  bot_launcher:
+    image: "node"
+    tty: true
+    privileged: true
+    pid: "host"
+    ipc: "host"
+    working_dir: /host/node/app/botlauncher
+    volumes:
+      - /:/host
+      - ./:/host/node/app
+    command: "node index.js"      
+    networks:
+      internal-network:
+        ipv4_address: 10.0.0.2
 
 networks:
   tilbot-network:
     driver: bridge
+  internal-network:
+    internal: true
+    ipam:
+      config:
+        - subnet: 10.0.0.0/16
+          gateway: 10.0.0.1

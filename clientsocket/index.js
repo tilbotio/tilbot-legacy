@@ -67,6 +67,11 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'socket.io', 'mongoose', 'P
         }
 
         else {
+            var port = 0;
+
+            if (process.argv[3] !== undefined) {
+              port = process.argv[3];
+            }
 
             function app(req, res) {
         
@@ -85,7 +90,7 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'socket.io', 'mongoose', 'P
               var httpsServer = https.createServer(ssloptions, app);
         
               // Start express server
-              httpsServer.listen(0, function() {
+              httpsServer.listen(port, function() {
                 console.log('Socket server listening on port ' + httpsServer.address().port + ' (https)');
                 project.socket = httpsServer.address().port;
                 project.save();
@@ -102,7 +107,7 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'socket.io', 'mongoose', 'P
               var httpServer = http.createServer(app);
         
               // Start express server
-              httpServer.listen(0, function() {
+              httpServer.listen(port, function() {
                 console.log('Socket server listening on port ' + httpServer.address().port + ' (http)');
                 project.socket = httpServer.address().port;
                 project.save();
