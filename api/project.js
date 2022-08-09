@@ -119,7 +119,7 @@ define("ProjectApiController", ["ProjectSchema", "Project", "crypto-js/md5"], fu
         static get_socket(project_id) {
             return new Promise(resolve => {
                 // @TODO: active projects only
-                ProjectSchema.findOne({ id: project_id }).then(function(project) {
+                ProjectSchema.findOne({ id: project_id, status: 1 }).then(function(project) {
                     if (project === null) {
                         resolve('-1');
                     }
