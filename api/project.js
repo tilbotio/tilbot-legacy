@@ -19,7 +19,7 @@ define("ProjectApiController", ["ProjectSchema", "Project", "crypto-js/md5"], fu
          */
         static get_project(id, username) {
             return new Promise(resolve => {
-                ProjectSchema.findOne({ id: id, user_id: username/*, active: true*/ }).then(function(project) {
+                ProjectSchema.findOne({ id: id, user_id: username, active: true }).then(function(project) {
                     resolve(project);
                 });
             });
@@ -35,7 +35,6 @@ define("ProjectApiController", ["ProjectSchema", "Project", "crypto-js/md5"], fu
          static import_project(project, project_id, username) {
             return new Promise(resolve => {
                 ProjectSchema.deleteOne({ id: project_id, user_id: username }).then(function(res) {
-                    console.log('jan1');
 
                     if (res.deletedCount == 0) {
                         resolve(false);
@@ -69,7 +68,7 @@ define("ProjectApiController", ["ProjectSchema", "Project", "crypto-js/md5"], fu
          */
         static get_projects(user) {
             return new Promise(resolve => {
-            ProjectSchema.find({ user_id: user }).then(function(projects) {
+            ProjectSchema.find({ user_id: user, active: true }).then(function(projects) {
                 var projects_return = [];
     
                 for (var p in projects) {
@@ -119,7 +118,7 @@ define("ProjectApiController", ["ProjectSchema", "Project", "crypto-js/md5"], fu
         static get_socket(project_id) {
             return new Promise(resolve => {
                 // @TODO: active projects only
-                ProjectSchema.findOne({ id: project_id, status: 1 }).then(function(project) {
+                ProjectSchema.findOne({ id: project_id, status: 1, active: true }).then(function(project) {
                     if (project === null) {
                         resolve('-1');
                     }
@@ -136,7 +135,7 @@ define("ProjectApiController", ["ProjectSchema", "Project", "crypto-js/md5"], fu
          */        
          static get_running_projects() {
             return new Promise(resolve => {
-                ProjectSchema.find({ status: 1 }).then(function(projects) {
+                ProjectSchema.find({ status: 1, active: true }).then(function(projects) {
                     resolve(projects);
                 });
             });
@@ -152,7 +151,7 @@ define("ProjectApiController", ["ProjectSchema", "Project", "crypto-js/md5"], fu
          static set_project_status(project_id, status) {
             return new Promise(resolve => {
                 // @TODO: active projects only
-                ProjectSchema.findOne({ id: project_id }).then(function(project) {
+                ProjectSchema.findOne({ id: project_id, active: true }).then(function(project) {
                     if (project === null) {
                         resolve('NOK');
                     }
@@ -163,7 +162,29 @@ define("ProjectApiController", ["ProjectSchema", "Project", "crypto-js/md5"], fu
                     }
                 });
             });
-        }        
+        }
+        
+        /**
+         * Set a project to active or inactive status.
+         * Used to delete projects without permanently deleting them.
+         * (Although this is hidden to the users)
+         *
+         * @param {string} project_id - Project ID
+         * @param {boolean} active - true if needs to be set to active, false for inactive
+         */    
+        static set_project_active(project_id, active) {
+            return new Promise(resolve => {
+            ProjectSchema.findOne({ id: project_id }).then(function(schema) {
+                if (schema != null) {
+                schema.active = active;
+                schema.save().then(function() {
+                    resolve(active);
+                });            
+                }
+            });        
+            })
+        }
+          
         
     }
 

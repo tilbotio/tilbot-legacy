@@ -114,6 +114,7 @@ define(["jquery", "jqueryui"], function($, ui) {
               $('.btn_start').on('click', { self: self, status: 1 }, self.toggle_status);
               $('.btn_pause').on('click', { self: self, status: 0 }, self.toggle_status);
               $('.btn_view.enabled').on('click', { self: self }, self.view_project);
+              $('.btn_delete').on('click', { self: self }, self.delete_project);
               //$('.btn_user_active').on('click', { self: self, active: true }, self.set_user_active);              
 
             }
@@ -227,6 +228,22 @@ define(["jquery", "jqueryui"], function($, ui) {
     
     view_project(e) {
       window.location.href = '/' + $(this).closest('tr').attr('data-id');
+    }
+
+    delete_project(e) {
+      if (confirm("Are you sure you wish to delete the project \"" + $(this).closest('tr').children('td:first').text() + "\"?")) {
+        // Actually delete
+        $.post('/api/set_project_active',
+        {
+          active: false,
+          projectid: $(this).closest('tr').attr('data-id')
+        },
+        function(res) {
+          console.log(res);
+          e.data.self.get_data();
+        }
+        );            
+      }
     }
 
     add_user(e) {

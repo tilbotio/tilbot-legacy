@@ -402,9 +402,51 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
               }
             });
           }
+          else {
+            res.send('NOK');
+          }
         }
       });
     });
+
+    /**
+     * API call: change a project's status (active/inactive)
+     */
+     app.post('/api/set_project_active', async (req, res) => {
+      res.status(200);
+
+      UserApiController.get_user(req.session.username).then(function(user) {
+        if (user !== null) {
+          if (user.role == 1) {
+            ProjectApiController.get_project(req.body.projectid, req.session.username).then(function(response) {
+              if (response != null) {
+                if (response.status == 1) {
+                  // Stop project from running first.
+                  ProjectApiController.set_project_status(req.body.projectid, 0).then(function(response) {
+                    this.stop_bot(req.body.projectid);
+                  });
+                }
+
+                // Make the project inactive
+                ProjectApiController.set_project_active(req.body.projectid, req.body.active).then(function(response) {
+                  res.send('OK');
+                });
+              }
+              else {
+                res.send('NOK');
+              }
+            });
+          }
+          else {
+            res.send('NOK');
+          }
+        }
+        else {
+          res.send('USER_NOT_FOUND');
+        }
+      });
+    });
+
 
     this.start_bot = function(projectid) {
       // Check whether we are running in Docker or not
