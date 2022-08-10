@@ -30,7 +30,7 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
   var use_https = false;
 
   if (process.env.USE_HTTPS != undefined) {
-    use_https = (process.env.USE_HTTPS == 1);
+    use_https = (process.env.USE_HTTPS == '1');
   }
 
   /*

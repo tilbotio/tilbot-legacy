@@ -35,7 +35,7 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'socket.io', 'mongoose', 'P
   var use_https = false;
 
   if (process.env.USE_HTTPS != undefined) {
-    use_https = (process.env.USE_HTTPS == 1);
+    use_https = (process.env.USE_HTTPS == '1');
   }
 
   // Allow parent process to terminate this one
