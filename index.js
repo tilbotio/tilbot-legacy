@@ -179,7 +179,14 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
         UserApiController.get_user(req.session.username).then(function(user) {
           if (user !== null) {
             if (user.role == 99) { // admin, retrieve user accounts
-              UserApiController.get_users().then(function(users) {
+              UserApiController.get_users().then(async function(users) {
+
+                var promises = [];
+                for (var u in users) {
+                  var projects = await ProjectApiController.get_running_projects_user(users[u].username);
+                  users[u].running_projects = projects.length;
+                }
+
                 data.users = users;
                 res.send(JSON.stringify(data));
               });
@@ -270,7 +277,18 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
       UserApiController.get_user(req.session.username).then(function(user) {
         if (user !== null) {
           if (user.role == 99) { // admin, retrieve user accounts
-            UserApiController.set_user_active(req.body.username, req.body.active).then(function(response) {
+            UserApiController.set_user_active(req.body.username, req.body.active).then(async function(response) {
+              // If a user was set to inactive, stop all of their running projects.
+              if (req.body.active == 'false') {
+                var projects = await ProjectApiController.get_running_projects_user(req.body.username);
+
+                for (var p in projects) {
+                  ProjectApiController.set_project_status(projects[p].id, 0).then(function(response) {
+                    this.stop_bot(projects[p].id);
+                  });
+                }
+              }
+
               res.send('OK');
             });
           }

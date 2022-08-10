@@ -28,9 +28,10 @@ define(["jquery", "jqueryui"], function($, ui) {
 
               if (data_json.users[u].active) {
                 total_active += 1;
+                total_projects += data_json.users[u].running_projects;
 
                 line += `              <td class="user_name">` + data_json.users[u].username + `</td>
-                <td style="text-align: center">0</td>`;
+                <td style="text-align: center">` + data_json.users[u].running_projects + `</td>`;
               }
               else {
                 line += `              <td class="user_name" style="text-decoration: line-through">` + data_json.users[u].username + `</td>
@@ -106,8 +107,9 @@ define(["jquery", "jqueryui"], function($, ui) {
               }
   
               $(`        <tr class="project_row" style="border-top: 4px solid #000">
-              <td>` + total_active + `</td>
-              <td colspan="6">&nbsp;</td>
+              <td>&nbsp;</td>
+              <td style="text-align: center">` + total_active + `</td>
+              <td colspan="5">&nbsp;</td>
             </tr>`).appendTo('#dashboard_projects table tbody');
   
               $('.btn_edit').on('click', { self: self }, self.edit_project);
