@@ -383,7 +383,9 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
       if (event.target.files[0] !== undefined) {
         var reader = new FileReader();
         reader.onload = function(load_event) {
-          // @TODO: empty canvas first before loading?
+          // Empty canvas first before loading?
+          $('#connector_lines').empty();
+          $('#editor_panel .block').remove();
 
           event.data.self.load_project(event.data.self, JSON.parse(load_event.target.result), true);        
         };
