@@ -79,9 +79,9 @@ requirejs(['process', 'fs', 'http', 'https', 'path', 'socket.io', 'mongoose', 'P
         
             var io = null;
         
-            if (use_https && fs.existsSync(__dirname + '/certs/privkey.pem') && fs.existsSync(__dirname + '/certs/fullchain.pem')) {
-              const key = fs.readFileSync(__dirname + '/certs/privkey.pem');
-              const cert = fs.readFileSync(__dirname + '/certs/fullchain.pem');
+            if (use_https && fs.existsSync(__dirname + '../certs/privkey.pem') && fs.existsSync(__dirname + '../certs/fullchain.pem')) {
+              const key = fs.readFileSync(__dirname + '../certs/privkey.pem');
+              const cert = fs.readFileSync(__dirname + '../certs/fullchain.pem');
               var ssloptions = {
                 key: key,
                 cert: cert
