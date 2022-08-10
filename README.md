@@ -16,13 +16,12 @@ Default profile icon by https://www.freepik.com/pch-vector
 ## Using Docker
 If you want to use the docker-compose version of this project, you will need to create the .env file in the root directory that contains:
 
-    MONGO_HOST=db
     MONGO_PORT=27017
-    MONGO_INITDB_DATABASE=tilbot
+    MONGO_DB=tilbot
     MONGO_INITDB_ROOT_USERNAME=root
     MONGO_INITDB_ROOT_PASSWORD=root
-    MONGO_DATABASE_USERNAME=user
-    MONGO_DATABASE_PASSWORD=pass
+    MONGO_USERNAME=user
+    MONGO_PASSWORD=pass
 
 Note: Sometimes git changes the line endings in the MongoDB initialization script, resulting in the Tilbot Docker throwing a MongoError (Authentication failed). This happened for me in Windows, if it does changing the following git setting (in a command prompt with administrator rights) should fix it:
     
