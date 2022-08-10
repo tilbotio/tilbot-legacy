@@ -39,7 +39,7 @@ services:
       MONGO_PORT: $MONGO_PORT
       MONGO_DB: $MONGO_DB
       TILBOT_PORT: 80
-      USE_HTTPS: 0
+      USE_HTTPS: $USE_HTTPS
 
   bot_launcher:
     image: "node"
