@@ -1,4 +1,4 @@
-define("EditorController", ["jquery", "handlebars", "Util", "StartingPointController", "MinimapController", "NewBlockController", "EditBlockController", "BlockController", "BasicProjectController", "text!/editor/views/editor.html"],
+define("EditorController", ["jquery", "handlebars", "Util", "StartingPointController", "MinimapController", "NewBlockController", "EditBlockController", "BlockController", "EditorProjectController", "text!/editor/views/editor.html"],
 function($, Handlebars, Util, StartingPointController, MinimapController, NewBlockController, EditBlockController, BlockController, ProjectController, view) {
 
   return class EditorController {
@@ -15,14 +15,11 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
       this.blockControllers = {};
       this.block_dragging = false;
 
-      // @TODO: load Project based on URL
-      this.projectController = new ProjectController();
+      this.projectController = new ProjectController(this.project_id); // note: project ID not in BasicProjectController.
 
       var self = this;
 
-      // @TODO: active/inactive projects
       $.get('/api/get_project', { id: this.project_id }, function(data) {
-        console.log(data);
         if (data == 'NOK') {
           window.location.href = '/login/';
         }
@@ -94,13 +91,22 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
         case 'new_block_added': this.add_new_block(params.block); break;
         case 'update_minimap': this.minimapController.update_minimap(); break;
         case 'scroll_editor': this.scroll_editor(params); break;
+        case 'block_changed': this.block_changed(params); break;
         default: ;
       }
 
     }
 
+    block_changed(block) {
+      for (const [key, value] of this.projectController.project.blocks) {
+        if (value == block) {
+          this.projectController.block_changed(key, value);
+          return;
+        }
+      }
+    }
+
     show_popup_new_block(event) {
-      console.log(event.data.self.projectController.project);
       $('#overlay').show();
       event.data.self.newBlockController.show();
     }
@@ -126,8 +132,10 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
     add_new_block(block) {
       this.close_overlay();
 
+      var id = this.projectController.get_current_block_id();
+
       // Update default name
-      block.name = 'Block ' + this.projectController.get_current_block_id();
+      block.name = 'Block ' + id;
 
       block.x = $('#editor_container').scrollLeft() + $('#editor_container').width() / 2;
       block.y = $('#editor_container').scrollTop() + $('#editor_container').height() / 2;
@@ -137,11 +145,11 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
       this.projectController.add_block(block);
 
       // Create controller with actual template
-      this.blockControllers[this.projectController.get_current_block_id()] = new BlockController(this.projectController.get_current_block_id(), block);
-      this.blockControllers[this.projectController.get_current_block_id()].subscribe(this);
+      this.blockControllers[id] = new BlockController(id, block);
+      this.blockControllers[id].subscribe(this);
 
       // Increment current block number
-      this.projectController.set_current_block_id(this.projectController.get_current_block_id() + 1);
+      //this.projectController.set_current_block_id(this.projectController.get_current_block_id() + 1);
 
       // Update minimap
       this.minimapController.update_minimap();
@@ -166,6 +174,7 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
       if (!val) {
         this.check_resize_canvas();
         this.minimapController.update_minimap();
+        this.block_changed(src.model);
       }
     }
 
@@ -227,7 +236,7 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
     }
 
     delete_line(line) {
-      this.projectController.delete_line(line);
+      this.projectController.delete_line(line.from_id, line.from_connector_id, line.target_id);
       this.no_selection();
       this.minimapController.update_minimap();
     }
@@ -331,24 +340,24 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
         $('#project_title').text(project.name);
 
         // Add block visuals
-        for (const [key, value] of Object.entries(project.blocks)) {
+        project.blocks.forEach((value, key) => {
           self.blockControllers[key] = new BlockController(key, value);
           self.blockControllers[key].subscribe(self);
-        }
+        });
 
         // Add line to starting point
         if (project.starting_block_id != -1) {
-          self.startingPointController.draw_full_line(project.starting_block_id, project.blocks[project.starting_block_id].x, project.blocks[project.starting_block_id].y);
+          self.startingPointController.draw_full_line(project.starting_block_id, project.blocks.get(project.starting_block_id.toString()).x, project.blocks.get(project.starting_block_id.toString()).y);
         }
 
         // Add lines connecting to other blocks
-        for (const [key, value] of Object.entries(project.blocks)) {
+        project.blocks.forEach((value, key) => {
           for (const [ckey, cvalue] of Object.entries(value.connectors)) {
             for (const [tkey, tvalue] of Object.entries(cvalue.targets)) {
-                self.blockControllers[key].draw_full_line(ckey, tvalue, project.blocks[tvalue].x, project.blocks[tvalue].y);
+                self.blockControllers[key].draw_full_line(ckey, tvalue, project.blocks.get(tvalue.toString()).x, project.blocks.get(tvalue.toString()).y);
             }
           }
-        }
+        });
 
         // Update minimap
         self.minimapController.update_minimap();
@@ -356,8 +365,6 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
         self.no_selection();
 
         if (send_to_server) {
-          console.log(self.projectController.project);
-          console.log(JSON.stringify(self.projectController.project.toJSON()));
 
           // Upload the imported project to the database
           $.post('/api/import_project',

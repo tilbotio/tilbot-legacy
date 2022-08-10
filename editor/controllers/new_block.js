@@ -91,6 +91,7 @@ function($, Handlebars, Observable, AutoBlock, MCBlock, TextBlock, ListBlock, vi
     }
 
     get_block_from_string(block_type) {
+      // @TODO: Make this automatic?
       switch(block_type) {
         case 'AutoBlock': return new AutoBlock(); break;
         case 'MCBlock': return new MCBlock(); break;

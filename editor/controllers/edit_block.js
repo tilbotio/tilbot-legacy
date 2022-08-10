@@ -115,6 +115,9 @@ function($, Handlebars, Util, Observable, view, subview) {
 
       event.data.self.current_block.setName($('#edit_popup_title').text());
 
+      // Perhaps a bit inefficient, but we assume if the save button is pressed that something has changed and therefore we update this block on the server.
+      event.data.self.notifyAll("block_changed", event.data.self.current_block);
+
       event.data.self.notifyAll("popup_closed");
     }
 

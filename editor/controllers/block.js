@@ -31,6 +31,10 @@ function($, Handlebars, Observable, LineController, view) {
 
       this.dom.draggable({
         start: function(event, ui){
+          if (event.originalEvent.target.classList.contains('connector_out')) {
+            return false;
+          }
+
           self.select_block({target: self.dom[0], data: { self: self }});
           self.dragging = true;
           self.notifyAll('block_dragging', {val: true});
@@ -202,6 +206,7 @@ function($, Handlebars, Observable, LineController, view) {
       else {
         this.lineControllers.push(src);
         this.model.connectors[params.connector_id].targets.push(params.target);
+        this.notifyAll('block_changed', this.model);
         this.notifyAll('update_minimap');
       }
     }

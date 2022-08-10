@@ -12,7 +12,7 @@ define("LocalProjectController", ["ProjectController"], function(ProjectControll
 
         self.current_block_id = self.project.starting_block_id;
 
-        self.send_message(self.project.blocks[self.project.starting_block_id]);
+        self.send_message(self.project.blocks.get(self.project.starting_block_id.toString()));
       }));
     }
 
@@ -35,8 +35,8 @@ define("LocalProjectController", ["ProjectController"], function(ProjectControll
     }
 
     message_sent_event() {
-      if (this.project.blocks[this.current_block_id].type == 'Auto') {
-        this.current_block_id = this.project.blocks[this.current_block_id].connectors[0].targets[0];
+      if (this.project.blocks.get(this.current_block_id.toString()).type == 'Auto') {
+        this.current_block_id = this.project.blocks.get(this.current_block_id.toString()).connectors[0].targets[0];
         this._send_current_message();
       }
     }
@@ -45,12 +45,12 @@ define("LocalProjectController", ["ProjectController"], function(ProjectControll
       var self = this;
 
       setTimeout(function() {
-        self.send_message(self.project.blocks[self.current_block_id]);
-      }, this.project.blocks[this.current_block_id].delay * 1000);
+        self.send_message(self.project.blocks.get(self.current_block_id.toString()));
+      }, this.project.blocks.get(this.current_block_id.toString()).delay * 1000);
     }
 
     receive_message(str) {
-      var block = this.project.blocks[this.current_block_id];
+      var block = this.project.blocks.get(this.current_block_id.toString());
 
       // @TODO: improve processing of message
       if (block.type == 'MC') {

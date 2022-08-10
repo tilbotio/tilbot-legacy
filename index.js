@@ -18,12 +18,15 @@ requirejs.config({
     UserApiController: 'api/user',
     ProjectApiController: 'api/project',
 
+    BasicProjectController: 'shared/controllers/basicproject',
+    ServerProjectController: 'editorsocket/controllers/serverproject',
+
     ProjectSchema: 'shared/models/db/project',
     UserSchema: 'shared/models/db/user'
   }
 });
 
-requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'UserApiController', 'ProjectApiController', 'jquery-deferred'], function(process, fs, net, http, https, path, child_process, express, session, mongodbsession, bodyparser, socket, mongoose, UserApiController, ProjectApiController, $) {
+requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'UserApiController', 'ProjectApiController', 'ServerProjectController', 'jquery-deferred'], function(process, fs, net, http, https, path, child_process, express, session, mongodbsession, bodyparser, socket, mongoose, UserApiController, ProjectApiController, ServerProjectController, $) {
   var use_https = false;
 
   if (process.env.USE_HTTPS != undefined) {
@@ -467,6 +470,7 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
 
 
     this.start_bot = function(projectid) {
+      console.log('starting ' + projectid);
       // Check whether we are running in Docker or not
       if (process.env.TILBOT_PORT != undefined) {
         this.botlauncher.write('start ' + projectid);
@@ -483,6 +487,7 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
     }
 
     this.stop_bot = function(projectid) {
+      console.log('stopping ' + projectid);
       // Check whether we are running in Docker or not
       if (process.env.TILBOT_PORT != undefined) {
         this.botlauncher.write('stop ' + projectid);
@@ -502,6 +507,8 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
     app.get('/*', (req, res) => {
       res.sendFile(path.join(__dirname, '/client/index.html'));
     });
+
+    var io;
 
     if (use_https && fs.existsSync(__dirname + '/certs/privkey.pem') && fs.existsSync(__dirname + '/certs/fullchain.pem')) {
       var port = 443;
@@ -524,7 +531,11 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
       // Start express server
       httpsServer.listen(app.get('port'), function() {
         console.log('Express server listening on port ' + app.get('port'));
+
       });      
+
+      // Start a socket for the editor to update the project files on the fly
+      io = socket(httpsServer);
     }
 
     else {
@@ -542,14 +553,36 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
       httpServer.listen(app.get('port'), function() {
         console.log('Express server listening on port ' + app.get('port'));
       });      
+
+      // Start a socket for the editor to update the project files on the fly
+      io = socket(httpServer);
+
     }
 
-
-
-    // Temporary client socket code, replace with editor socket code later
-    //const io = socket(httpServer);
     //var projectserver = new RemoteProjectServer(io, mongo);
-    //var clients = {};
+    
+    var editorclients = {};
+
+    io.on('connection', (socket) => {
+      console.log('a user connected');
+      editorclients[socket.id] = new ServerProjectController(socket, mongoose);
+
+      socket.on('disconnect', () => {
+        editorclients[socket.id].destroy();
+        if (editorclients[socket.id].ever_modified && editorclients[socket.id].project.status == 1) {
+          // Restart the bot if it was running
+          console.log('restarting bot because it was changed');
+          var project_id = editorclients[socket.id].project.id;
+          this.stop_bot(project_id);
+          setTimeout(function() { this.start_bot(project_id) }.bind(this), 4000);
+        }
+        delete editorclients[socket.id];
+        console.log('disconnected');
+      });
+
+    });
+
+
 
 
   }, error => {

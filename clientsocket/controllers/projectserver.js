@@ -32,7 +32,8 @@ define("RemoteProjectServer", ["LogSchema"], function(LogSchema) {
   
               socket.on('disconnect', () => {
                 self.clients[socket.id].session_closed = new Date();
-                //self.clients[socket.id].save();
+                self.clients[socket.id].save();
+                delete self.clients[socket.id];
   
                 console.log('disconnected');
               });

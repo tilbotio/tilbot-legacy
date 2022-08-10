@@ -21,7 +21,8 @@ requirejs.config({
         EditBlockController: 'editor/controllers/edit_block',
         BlockController: 'editor/controllers/block',
         LineController: 'editor/controllers/line',
-        BasicProjectController: 'editor/controllers/basicproject',
+        BasicProjectController: 'shared/controllers/basicproject',
+        EditorProjectController: 'editor/controllers/editorproject',
 
         // Models
         Project: 'models/project',

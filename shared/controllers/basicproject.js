@@ -15,30 +15,40 @@ function(Project) {
       return this.project.current_block_id;
     }
 
-    set_current_block_id(new_id) {
+    /*set_current_block_id(new_id) {
       this.project.current_block_id = new_id;
-    }
+    }*/
 
     set_name(name) {
       this.project.name = name;
     }
 
     add_block(block) {
-      this.project.blocks[this.get_current_block_id()] = block;
+      this.project.blocks.set(this.get_current_block_id().toString(), block);
+      this.project.current_block_id += 1;
     }
 
     delete_block(block_id) {
-      delete this.project.blocks[block_id];
+      this.project.blocks.delete(block_id.toString());
       console.log(this.project.blocks);
     }
 
-    delete_line(line) {
-      var tars = this.project.blocks[line.from_id].connectors[line.from_connector_id].targets;
+    delete_line(from_id, from_connector_id, target_id) {
+      console.log(this.project);
+      console.log(from_id);
+      console.log(from_connector_id);
+      console.log(target_id);
 
-
-      var index = tars.indexOf(line.target_id);
-      if (index !== -1) {
-        tars.splice(index, 1);
+      if (this.project.blocks.get(from_id) !== undefined) {
+        var tars = this.project.blocks.get(from_id).connectors[from_connector_id].targets;
+        //console.log(tars.get(0));
+  
+        var index = tars.indexOf(target_id);
+     
+        if (index !== -1) {
+          tars.splice(index, 1);
+          this.project.blocks.get(from_id).connectors[from_connector_id].targets = tars;        
+        }  
       }
     }
 
@@ -56,6 +66,10 @@ function(Project) {
       });
 
       return dfd.promise();
+    }
+
+    block_changed(key, block) {
+      // Do nothing by default.
     }
   }
 });
