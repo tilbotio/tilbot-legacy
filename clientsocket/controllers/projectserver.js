@@ -69,8 +69,10 @@ define("RemoteProjectServer", ["LogSchema"], function(LogSchema) {
         //this.clients[socket_id].save();
   
         if (this.project.blocks.get(this.clients[socket_id].current_block_id.toString()).type == 'Auto') {
-          this.clients[socket_id].current_block_id = this.project.blocks.get(this.clients[socket_id].current_block_id.toString()).connectors[0].targets[0];
-          this.plan_message(socket_id, this.clients[socket_id].current_block_id);
+          if (this.project.blocks.get(this.clients[socket_id].current_block_id.toString()).connectors.length > 0 && this.project.blocks.get(this.clients[socket_id].current_block_id.toString()).connectors[0].targets.length > 0) {
+            this.clients[socket_id].current_block_id = this.project.blocks.get(this.clients[socket_id].current_block_id.toString()).connectors[0].targets[0];
+            this.plan_message(socket_id, this.clients[socket_id].current_block_id);  
+          }
         }
       }
   
@@ -90,7 +92,7 @@ define("RemoteProjectServer", ["LogSchema"], function(LogSchema) {
         // @TODO: improve processing of message
         if (block.type == 'MC') {
           for (var c in block.connectors) {
-            if (block.connectors[c].label == str) {
+            if (block.connectors[c].label == str && block.connectors[c].targets.length > 0) {
               this.clients[socket_id].current_block_id = block.connectors[c].targets[0];
               this.plan_message(socket_id, this.clients[socket_id].current_block_id);
             }
@@ -98,7 +100,7 @@ define("RemoteProjectServer", ["LogSchema"], function(LogSchema) {
         }
         else if (block.type == 'Text' || block.type == 'List') {
           for (var c in block.connectors) {
-            if (block.connectors[c].label == str || block.connectors[c].label == '[else]') {
+            if ((block.connectors[c].label == str || block.connectors[c].label == '[else]') && block.connectors[c].targets.length > 0) {
               this.clients[socket_id].current_block_id = block.connectors[c].targets[0];
               this.plan_message(socket_id, this.clients[socket_id].current_block_id);
             }
