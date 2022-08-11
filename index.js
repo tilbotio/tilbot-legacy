@@ -476,6 +476,11 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
         this.botlauncher.write('start ' + projectid);
       }
       else {
+        // Stop the bot if it is currently already running (Docker does this too further down the line)
+        if (this.running_bots[projectid] !== undefined) {
+          this.stop_bot(projectid);
+        }
+
         this.running_bots[projectid] = child_process.fork('./clientsocket/index.js', [projectid], {
           silent: true
         });
@@ -573,8 +578,7 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
           // Restart the bot if it was running
           console.log('restarting bot because it was changed');
           var project_id = editorclients[socket.id].project.id;
-          this.stop_bot(project_id);
-          setTimeout(function() { this.start_bot(project_id) }.bind(this), 4000);
+          this.start_bot(project_id);
         }
         delete editorclients[socket.id];
         console.log('disconnected');

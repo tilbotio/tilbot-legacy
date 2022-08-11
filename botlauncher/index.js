@@ -17,7 +17,8 @@ var server = net.createServer(function(socket) {
             tmpsocket.listen(0, function() {
                 port = tmpsocket.address().port;
                 tmpsocket.close();
-                exec("chroot /host docker run --rm --env-file /node/app/.env --network tilbot_tilbot-network --name " + parts[1] + " -p " + port + ":" + port + " tilbot_node node clientsocket/index.js " + parts[1] + " " + port);
+                // Also stop running instance if needed
+                exec("chroot /host docker stop " + parts[1] + " || true && chroot /host docker wait " + parts[1] + " || true && chroot /host docker run --rm --env-file /node/app/.env --network tilbot_tilbot-network --name " + parts[1] + " -p " + port + ":" + port + " tilbot_node node clientsocket/index.js " + parts[1] + " " + port);
             });
 
         }
