@@ -33,7 +33,7 @@ If you want to use HTTPS:
 1. Put your .pem and .pem in a directory called 'certs' under the project root folder
 
 With Docker:
-1. Set USE_HTTPS to 1 in the docker-compose.yaml file
+1. Set USE_HTTPS to 1 in the .env file
 2. Make sure the ports are set correctly in the docker-compose.yaml file (TILBOT_PORT environment and the ports under 'node' service)
     
 Without Docker:
