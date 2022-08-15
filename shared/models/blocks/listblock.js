@@ -10,6 +10,8 @@ define("ListBlock", ["BasicBlock", "LabeledConnector"], function(BasicBlock, Lab
 
         /* Fixed visual properties not exported to JSON */
         this.icon = 'fa-square-caret-down';
+        this.background_color = '#05BDCC';
+        this.connector_color = '#049EAA';
 
         this.templates = ['text!/editor/views/basicblock_detail.html', 'text!/editor/views/blocks/listblock_detail.html'];
       }

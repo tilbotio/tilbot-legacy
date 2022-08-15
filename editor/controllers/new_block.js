@@ -1,5 +1,5 @@
-define("NewBlockController", ["jquery", "handlebars", "Observable", "AutoBlock", "MCBlock", "TextBlock", "ListBlock", "text!/editor/views/new_block.html"],
-function($, Handlebars, Observable, AutoBlock, MCBlock, TextBlock, ListBlock, view) {
+define("NewBlockController", ["jquery", "handlebars", "Observable", "text!/editor/views/new_block.html"],
+function($, Handlebars, Observable, view) {
 
   return class NewBlockController extends Observable {
     constructor() {
@@ -12,6 +12,12 @@ function($, Handlebars, Observable, AutoBlock, MCBlock, TextBlock, ListBlock, vi
             description: 'Does not wait for input from the user. Automatically proceeds to next message (you can add a delay to the next message).',
             icon: 'fa-clock',
             type: 'AutoBlock'
+          },
+          {
+            name: 'Group',
+            description: 'Group several other blocks into one.',
+            icon: 'fa-layer-group',
+            type: 'GroupBlock'
           },
           {
             name: 'List selection',
@@ -86,18 +92,17 @@ function($, Handlebars, Observable, AutoBlock, MCBlock, TextBlock, ListBlock, vi
         return;
       }
       else {
-        event.data.self.notifyAll('new_block_added', {block: event.data.self.get_block_from_string(event.data.self.selected_new_block)});
-      }
-    }
+        require.onError = function(err) {
+          console.log(err);
+        }
 
-    get_block_from_string(block_type) {
-      // @TODO: Make this automatic?
-      switch(block_type) {
-        case 'AutoBlock': return new AutoBlock(); break;
-        case 'MCBlock': return new MCBlock(); break;
-        case 'TextBlock': return new TextBlock(); break;
-        case 'ListBlock': return new ListBlock(); break;
-        default: return new AutoBlock();
+        console.log(event.data.self.selected_new_block);
+
+        require([event.data.self.selected_new_block], function(Block) {
+          console.log(Block);
+          event.data.self.notifyAll('new_block_added', {block: new Block()});
+        });
+
       }
     }
   }

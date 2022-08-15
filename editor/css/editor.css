@@ -124,22 +124,6 @@ body {
   z-index: 2;
 }
 
-.block_auto {
-  background-color: #D74461 !important;
-}
-
-.block_mc {
-  background-color: #4F47D4 !important;
-}
-
-.block_text {
-  background-color: #FC1F8C !important;
-}
-
-.block_list {
-  background-color: #05BDCC !important;
-}
-
 .block_header {
   width: 100%;
   position: absolute;
@@ -179,22 +163,6 @@ body {
   margin-left: 6px;
   top: 96px;
   padding-bottom: 8px;
-}
-
-.block_auto .connectors {
-  background-color: #AF2541;
-}
-
-.block_mc .connectors {
-  background-color: #2C25A0;
-}
-
-.block_text .connectors {
-  background-color: #CF0267;
-}
-
-.block_list .connectors {
-  background-color: #049EAA;
 }
 
 .connector_in, .connector_out {

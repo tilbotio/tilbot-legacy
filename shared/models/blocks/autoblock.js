@@ -8,6 +8,8 @@ define("AutoBlock", ["BasicBlock", "BasicConnector"], function(BasicBlock, Basic
 
         /* Fixed visual properties not exported to JSON */
         this.icon = 'fa-clock';
+        this.background_color = '#D74461';
+        this.connector_color = '#AF2541';
       }
     }
 });

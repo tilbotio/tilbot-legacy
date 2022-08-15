@@ -1,4 +1,4 @@
-<div class="block block_{{lower type}}">
+<div class="block block_{{lower type}}" style="background-color: {{background_color}}">
     <div class="block_header">
       <div class="connector_in">
       </div>
@@ -17,7 +17,7 @@
       {{/if}}
     </div>
     {{#if connectors}}
-    <div class="connectors">
+    <div class="connectors" style="background-color: {{connector_color}}">
       {{#each connectors}}
       <div class="connector_container">
         {{#if label}}

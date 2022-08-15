@@ -7,10 +7,10 @@ requirejs.config({
     Models: 'client/remote/dbmodels',
     Project: 'shared/models/project',
     BasicBlock: 'shared/models/basicblock',
-    AutoBlock: 'shared/models/blocks/autoblock',
+    /*AutoBlock: 'shared/models/blocks/autoblock',
     MCBlock: 'shared/models/blocks/mcblock',
     TextBlock: 'shared/models/blocks/textblock',
-    ListBlock: 'shared/models/blocks/listblock',
+    ListBlock: 'shared/models/blocks/listblock',*/
     BasicConnector: 'shared/models/basicconnector',
     LabeledConnector: 'shared/models/connectors/labeledconnector',
     Observable: 'shared/controllers/observable',
@@ -38,6 +38,54 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
    * use it to dynamically require files. Can perhaps be cleaned up a bit in the future.
   */
   this.$ = $;
+
+  // 'Dynamically' include the different block types that are available, and also apply this to the client-side
+  var tmppaths = {};
+
+  const dir = fs.opendirSync('shared/models/blocks')
+  let dirent
+  while ((dirent = dir.readSync()) !== null) {
+    const contents = fs.readFileSync('shared/models/blocks/' + dirent.name, 'utf-8');
+    var blockname = contents.substring(contents.indexOf('define("')+8, contents.indexOf('"', contents.indexOf('define("')+8));
+
+    tmppaths[blockname] = 'shared/models/blocks/' + dirent.name;
+
+
+
+    //var blockname = dirent.name.charAt(0).toUpperCase() + dirent.name.slice(1);
+    //blockname.replace('block.json', 'Block');
+    console.log(blockname)
+  }
+  dir.closeSync()
+
+  
+  // Add it to the list of paths on the server-side
+  requirejs.config({
+    paths: tmppaths
+  });
+
+  // Update the client-side list of paths
+  //fs.copyFile('/editor/app.jstemplate', '/editor/app.js');
+  var blockstr = '';
+
+  for (const [key, value] of Object.entries(tmppaths)) {
+    blockstr += "\t\t" + key + ': ' + '"' + value.slice(0,-3) + '"' + ",\r\n";
+  }
+
+  fs.readFile('editor/app.jstemplate', 'utf-8', function (err, contents) {
+    if (err) {
+      console.log(err);
+    }
+    console.log(blockstr);
+
+    const replaced = contents.replace('[BLOCKS]', blockstr);
+  
+    fs.writeFile('editor/app.js', replaced, 'utf-8', function (err) {
+      console.log(err);
+    });
+  });
+
+  //console.log(requirejs.s.contexts._.config);
 
   // Keep track of running external processes for bots.
   this.running_bots = {};

@@ -13,6 +13,8 @@ define("BasicBlock", ["Observable", "BasicConnector"], function(Observable, Basi
 
         /* Fixed visual properties not exported to JSON */
         this.icon = '';
+        this.background_color = '';
+        this.connector_color = '';
 
         /* Used for editing this model, also not exported to JSON */
         /* Note: not sure if this should be here since it is editor-specific
@@ -77,15 +79,20 @@ define("BasicBlock", ["Observable", "BasicConnector"], function(Observable, Basi
         block.y = json.y;
         block.connectors = [];
 
-        for (const [key, value] of Object.entries(json.connectors)) {
-          require([value.type + 'Connector'], function(Connector) {
-              block.connectors.push(Connector.fromJSON(value));
-
-              if(Object.keys(block.connectors).length == Object.keys(json.connectors).length) {
-                dfd.resolve(block);
-              }
-
-          });
+        if (json.connectors.length == 0) {
+          dfd.resolve(block);
+        }
+        else {
+          for (const [key, value] of Object.entries(json.connectors)) {
+            require([value.type + 'Connector'], function(Connector) {
+                block.connectors.push(Connector.fromJSON(value));
+  
+                if(Object.keys(block.connectors).length == Object.keys(json.connectors).length) {
+                  dfd.resolve(block);
+                }
+  
+            });
+          }  
         }
 
         return dfd.promise();

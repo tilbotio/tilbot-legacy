@@ -28,13 +28,13 @@ requirejs.config({
         // Models
         User: 'models/user',
         Project: 'models/project',
-        BasicBlock: 'models/basicblock',
+        /*BasicBlock: 'models/basicblock',
         AutoBlock: 'models/blocks/autoblock',
         MCBlock: 'models/blocks/mcblock',
         TextBlock: 'models/blocks/textblock',
         ListBlock: 'models/blocks/listblock',
         BasicConnector: 'models/basicconnector',
-        LabeledConnector: 'models/connectors/labeledconnector'
+        LabeledConnector: 'models/connectors/labeledconnector'*/
     }
 });
 
