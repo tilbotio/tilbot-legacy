@@ -41,10 +41,15 @@ function(BasicProjectController, ProjectSchema) {
       });    
     }
 
-    set_canvas_size(width, height) {
-      console.log(width);
-      console.log(height);
-      super.set_canvas_size(width, height);
+    set_canvas_size(width, height, path = []) {
+      super.set_canvas_size(width, height, path);
+      this.project.markModified('blocks'); // This is apparently needed for mongoose to pick up on changes to an array in a Map.
+      this.modified = true;
+      this.ever_modified = true;
+    }
+
+    set_current_block_id(new_id) {
+      super.set_current_block_id(new_id);
       this.modified = true;
       this.ever_modified = true;
     }
@@ -74,15 +79,30 @@ function(BasicProjectController, ProjectSchema) {
       this.ever_modified = true;
     }
 
-    set_starting_line(val) {
-      super.set_starting_line(val);
+    set_starting_line(val, path = []) {
+      super.set_starting_line(val, path);
+      this.project.markModified('blocks');
       this.modified = true;
       this.ever_modified = true;
     }
 
-    block_changed(key, block) {
-      super.block_changed(key, block);
-      this.project.blocks.set(key, block);
+    block_changed(key, block, path = []) {           
+      super.block_changed(key, block, path);
+
+      if (path.length == 0) {
+        this.project.blocks[key] = block;
+      } 
+      else {
+        var tmpblock = this.project.blocks[path[0]];
+
+        for (var i = 1; i < path.length; i++) {
+          tmpblock = tmpblock.blocks[path[i]];
+        }
+
+        tmpblock.blocks[key] = block;
+      }     
+
+      this.project.markModified('blocks');
       this.modified = true;
       this.ever_modified = true;
     }    

@@ -3,7 +3,7 @@ define("Project", [], function() {
       constructor(canvas_width, canvas_height) {
         this.name = 'New project';
         this.current_block_id = 1;
-        this.blocks = new Map();
+        this.blocks = {};
         this.starting_block_id = -1;
         this.canvas_width = canvas_width;
         this.canvas_height = canvas_height;
@@ -29,6 +29,7 @@ define("Project", [], function() {
       }
 
       static fromJSON(json) {
+        console.log(json);
         var dfd = $.Deferred();
 
         var project = new Project(json.canvas_width, json.canvas_height);
@@ -36,14 +37,14 @@ define("Project", [], function() {
         project.current_block_id = json.current_block_id;
         project.starting_block_id = json.starting_block_id;
 
-        project.blocks = new Map();
+        project.blocks = {};
 
         for (const [key, value] of Object.entries(json.blocks)) {
           require([value.type + 'Block'], function(Block) {
               $.when(Block.fromJSON(value)).then(function(block) {
-                  project.blocks.set(key, block);
+                  project.blocks[key] = block;
 
-                  if(project.blocks.size == Object.keys(json.blocks).length) {
+                  if(Object.keys(project.blocks).length == Object.keys(json.blocks).length) {
                     dfd.resolve(project);
                   }
 

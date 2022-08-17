@@ -248,14 +248,14 @@ body {
   opacity: 0.5;
 }
 
-#starting_point_container {
+#starting_point_container, #end_point_container {
   position: absolute;
   left: 64px;
   top: 96px;
   text-align: center;
 }
 
-#starting_point {
+#starting_point, #end_point {
     width: 24px;
     height: 24px;
     border-radius: 50%;
@@ -524,6 +524,11 @@ body {
 #btn_run_all, #btn_run_selected, #btn_export, #btn_import {
   float: left;
   margin-top: 20px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+#breadcrumbs {
   cursor: pointer;
   pointer-events: auto;
 }

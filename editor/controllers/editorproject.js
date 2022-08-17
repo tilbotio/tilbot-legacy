@@ -15,9 +15,14 @@ function(BasicProjectController) {
         });        
     }
 
-    set_canvas_size(width, height) {
-      super.set_canvas_size(width, height);
-      this.socket.emit('cmd', 'set_canvas_size', [width, height]);
+    set_canvas_size(width, height, path = []) {
+      super.set_canvas_size(width, height, path);
+      this.socket.emit('cmd', 'set_canvas_size', [width, height, path]);
+    }
+
+    set_current_block_id(new_id) {
+      super.set_current_block_id(new_id);
+      this.socket.emit('cmd', 'set_current_block_id', new_id);
     }
 
     set_name(name) {
@@ -41,14 +46,14 @@ function(BasicProjectController) {
       this.socket.emit('cmd', 'delete_line', [from_id, from_connector_id, target_id]);
     }
 
-    set_starting_line(val) {
-      super.set_starting_line(val);
-      this.socket.emit('cmd', 'set_starting_line', val);
+    set_starting_line(val, path = []) {
+      super.set_starting_line(val, path);
+      this.socket.emit('cmd', 'set_starting_line', [val, path]);
     }
 
-    block_changed(key, block) {
-      super.block_changed(key, block);
-      this.socket.emit('cmd', 'block_changed', [key, block]);
+    block_changed(key, block, path = []) {
+      super.block_changed(key, block, path);
+      this.socket.emit('cmd', 'block_changed', [key, block, path]);
     }
   }
 });

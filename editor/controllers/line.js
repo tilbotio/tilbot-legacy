@@ -119,15 +119,22 @@ function($, Handlebars, Observable) {
       // Check if we landed on another block
       var el = document.elementFromPoint(event.pageX, event.pageY);
 
-      if (el.classList.contains('block') || $(el).parents('.block').length) {
+      if ($(el).attr('id') == 'end_point' || el.classList.contains('block') || $(el).parents('.block').length) {
         if (el.classList.contains('block')) {
           var theblock = $(el);
+        }
+        else if ($(el).attr('id') == 'end_point') {
+          var theblock = $(el).parent();
         }
         else {
           var theblock = $($(el).parents('.block')[0]);
         }
 
-        event.data.self.target_id = theblock.data('controller').id;
+        event.data.self.target_id = -1;
+
+        if (el.classList.contains('block') || $(el).parents('.block').length) {
+          event.data.self.target_id = theblock.data('controller').id;
+        }
 
         if (event.data.self.target_id == event.data.self.from_id) {
           event.data.self.cancel_line();

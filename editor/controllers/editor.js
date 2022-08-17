@@ -1,5 +1,5 @@
-define("EditorController", ["jquery", "handlebars", "Util", "StartingPointController", "MinimapController", "NewBlockController", "EditBlockController", "BlockController", "EditorProjectController", "text!/editor/views/editor.html"],
-function($, Handlebars, Util, StartingPointController, MinimapController, NewBlockController, EditBlockController, BlockController, ProjectController, view) {
+define("EditorController", ["jquery", "handlebars", "Util", "StartingPointController", "EndPointController", "MinimapController", "NewBlockController", "EditBlockController", "BlockController", "GroupBlockController", "EditorProjectController", "text!/editor/views/editor.html"],
+function($, Handlebars, Util, StartingPointController, EndPointController, MinimapController, NewBlockController, EditBlockController, BlockController, GroupBlockController, ProjectController, view) {
 
   return class EditorController {
 
@@ -14,6 +14,7 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
 
       this.blockControllers = {};
       this.block_dragging = false;
+      this.selected_group_blocks = [];
 
       this.projectController = new ProjectController(this.project_id); // note: project ID not in BasicProjectController.
 
@@ -36,6 +37,10 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
   
               self.startingPointController = new StartingPointController();
               self.startingPointController.subscribe(self);
+
+              self.endPointController = new EndPointController();
+              self.endPointController.set_canvas_size($('#editor_panel').width(), $('#editor_panel').height());
+              self.endPointController.subscribe(self);
   
               self.minimapController = new MinimapController();
               self.minimapController.subscribe(self);
@@ -69,6 +74,8 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
       $('#btn_run_all').on('click', { self: this }, this.run_all);
       $('#btn_run_selected').on('click', { self: this }, this.run_selected);
 
+      $('#breadcrumbs').on('click', { self: this }, this.breadcrumb_clicked);
+
       $(document).on('keydown', { self: this }, this.key_down);
     }
 
@@ -92,15 +99,29 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
         case 'update_minimap': this.minimapController.update_minimap(); break;
         case 'scroll_editor': this.scroll_editor(params); break;
         case 'block_changed': this.block_changed(params); break;
+        case 'move_to_group': this.move_to_group(params); break;
         default: ;
       }
 
     }
 
     block_changed(block) {
-      for (const [key, value] of this.projectController.project.blocks) {
+      var path = this.get_path();
+
+      var tmpblocks = this.projectController.project.blocks;
+
+      if (path.length > 0) {
+        tmpblocks = tmpblocks[path[0]].blocks;
+
+        for (var i = 1; i < path.length; i++) {
+          tmpblocks = tmpblocks[path[i]].blocks;
+        }
+      }
+      
+      for (const [key, value] of Object.entries(tmpblocks)) {
         if (value == block) {
-          this.projectController.block_changed(key, value);
+          console.log('found the block!');
+          this.projectController.block_changed(key, value, path);
           return;
         }
       }
@@ -142,17 +163,36 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
 
 
       // Add model to collection
-      this.projectController.add_block(block);
+      if (this.selected_group_blocks.length > 0) {
+        this.selected_group_blocks[this.selected_group_blocks.length-1].model.blocks[id] = block;
+      }
+      else {
+        this.projectController.add_block(block);
+      }
 
       // Create controller with actual template
-      this.blockControllers[id] = new BlockController(id, block);
+      if (block.type == 'Group') {
+        if (block.canvas_width == 0) {
+          block.canvas_width = $('#editor_container').width() * 2;
+        }
+        if (block.canvas_height == 0) {
+          block.canvas_height = $('#editor_container').height() * 2;
+        }
+
+        this.blockControllers[id] = new GroupBlockController(id, block);
+      }
+      else {
+        this.blockControllers[id] = new BlockController(id, block);
+      }
       this.blockControllers[id].subscribe(this);
 
       // Increment current block number
-      //this.projectController.set_current_block_id(this.projectController.get_current_block_id() + 1);
+      this.projectController.set_current_block_id(this.projectController.get_current_block_id() + 1);
 
       // Update minimap
       this.minimapController.update_minimap();
+
+      console.log(this.projectController.project);
     }
 
     deselect_all() {
@@ -302,7 +342,16 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
       var new_width = Math.max(default_width, most_right);
       var new_height = Math.max(default_height, most_bottom);
 
-      this.projectController.set_canvas_size(new_width, new_height);
+      if (this.selected_group_blocks.length > 0) {
+        this.projectController.set_canvas_size(new_width, new_height, this.get_path());
+        this.endPointController.set_canvas_size(new_width, new_height);
+      }
+      else {
+        console.log('setting canvas size on main project');
+        this.projectController.set_canvas_size(new_width, new_height);
+      }
+
+      console.log(this.projectController.project);
 
       $('#editor_panel').css('width', new_width + 'px');
       $('#editor_panel').css('height', new_height + 'px');
@@ -311,12 +360,12 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
     }
 
     starting_line_created(target) {
-      this.projectController.set_starting_line(target);
+      this.projectController.set_starting_line(target, this.get_path());
       this.minimapController.update_minimap();
     }
 
     starting_line_deleted() {
-      this.projectController.set_starting_line(-1);
+      this.projectController.set_starting_line(-1, this.get_path());
       this.minimapController.update_minimap();
     }
 
@@ -331,6 +380,20 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
       downloadAnchorNode.remove();
     }
 
+    get_path() {
+      var path = [];
+
+      console.log(this.selected_group_blocks);
+
+      for (var b in this.selected_group_blocks) {
+        path.push(this.selected_group_blocks[b].id);
+      }
+
+      console.log(path);
+
+      return path;
+    }
+
     load_project(self, json, send_to_server = false) {
       console.log(json);
       $.when(self.projectController.load_project(json)).then(function() {
@@ -340,24 +403,29 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
         $('#project_title').text(project.name);
 
         // Add block visuals
-        project.blocks.forEach((value, key) => {
-          self.blockControllers[key] = new BlockController(key, value);
+        for (const [key, value] of Object.entries(project.blocks)) {
+          if (value.type == 'Group') {
+            self.blockControllers[key] = new GroupBlockController(key, value);
+          }
+          else {
+            self.blockControllers[key] = new BlockController(key, value);
+          }
           self.blockControllers[key].subscribe(self);
-        });
+        }
 
         // Add line to starting point
         if (project.starting_block_id != -1) {
-          self.startingPointController.draw_full_line(project.starting_block_id, project.blocks.get(project.starting_block_id.toString()).x, project.blocks.get(project.starting_block_id.toString()).y);
+          self.startingPointController.draw_full_line(project.starting_block_id, project.blocks[project.starting_block_id.toString()].x, project.blocks[project.starting_block_id.toString()].y);
         }
 
         // Add lines connecting to other blocks
-        project.blocks.forEach((value, key) => {
+        for (const [key, value] of Object.entries(project.blocks)) {
           for (const [ckey, cvalue] of Object.entries(value.connectors)) {
             for (const [tkey, tvalue] of Object.entries(cvalue.targets)) {
-                self.blockControllers[key].draw_full_line(ckey, tvalue, project.blocks.get(tvalue.toString()).x, project.blocks.get(tvalue.toString()).y);
+                self.blockControllers[key].draw_full_line(ckey, tvalue, project.blocks[tvalue.toString()].x, project.blocks[tvalue.toString()].y);
             }
           }
-        });
+        }
 
         // Update minimap
         self.minimapController.update_minimap();
@@ -393,6 +461,7 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
           // Empty canvas first before loading?
           $('#connector_lines').empty();
           $('#editor_panel .block').remove();
+          this.blockControllers = {};
 
           event.data.self.load_project(event.data.self, JSON.parse(load_event.target.result), true);        
         };
@@ -465,6 +534,77 @@ function($, Handlebars, Util, StartingPointController, MinimapController, NewBlo
         project.starting_block_id = selected_id;
         $('#simulator')[0].contentWindow.postMessage(JSON.stringify(project), "*");
       }
+    }
+
+    move_to_group(params) {
+      console.log(params);
+      this.selected_group_blocks.push(params);
+      this.load_group(this.selected_group_blocks.length-1);
+    }
+
+    load_group(id) {
+      var group = this.projectController.project;
+      if (id !== null) {
+        group = this.selected_group_blocks[id].model;
+      }
+
+      // Empty canvas first before loading
+      $('#connector_lines').empty();
+      $('#editor_panel .block').remove();
+      this.blockControllers = {};
+
+      $('#editor_panel').css('width', group.canvas_width + 'px');
+      $('#editor_panel').css('height', group.canvas_height + 'px');
+
+      // Add block visuals
+      console.log(typeof group.blocks);
+
+      for (const [key, value] of Object.entries(group.blocks)) {
+
+        console.log(value);
+        if (value.type == 'Group') {
+          this.blockControllers[key] = new GroupBlockController(key, value);
+        }
+        else {
+          this.blockControllers[key] = new BlockController(key, value);
+        }
+        this.blockControllers[key].subscribe(this);
+      }
+
+      // Add line to starting point
+      console.log(group.starting_block_id);
+      if (group.starting_block_id != -1) {
+        this.startingPointController.draw_full_line(group.starting_block_id, group.blocks[group.starting_block_id.toString()].x, group.blocks[group.starting_block_id.toString()].y);
+      }
+
+      // Add lines connecting to other blocks
+      for (const [key, value] of Object.entries(group.blocks)) {
+
+        for (const [ckey, cvalue] of Object.entries(value.connectors)) {
+          for (const [tkey, tvalue] of Object.entries(cvalue.targets)) {
+            if (tvalue == -1) {
+              this.blockControllers[key].draw_full_line(ckey, tvalue, $('#end_point_container').position().left + 10, $('#end_point_container').position().top + 10);
+            }           
+            else {
+              this.blockControllers[key].draw_full_line(ckey, tvalue, group.blocks[tvalue.toString()].x, group.blocks[tvalue.toString()].y);
+            }   
+          }
+        }
+      }
+
+      this.scroll_editor({top: 0, left: 0});
+
+      // Update minimap
+      this.minimapController.update_minimap();
+
+      this.no_selection();      
+    } 
+    
+    breadcrumb_clicked(event) {
+      alert('breadcrumb!');
+      // @TODO: support other intermediate steps and update the array accordingly
+      event.data.self.selected_group_blocks = [];
+      event.data.self.load_group(null);
     }
 
   }
