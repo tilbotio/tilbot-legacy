@@ -31,7 +31,8 @@ requirejs.config({
         BasicBlock: 'models/basicblock',
 [BLOCKS]
         BasicConnector: 'models/basicconnector',
-        LabeledConnector: 'models/connectors/labeledconnector'
+        LabeledConnector: 'models/connectors/labeledconnector',
+        GroupConnector: 'models/connectors/groupconnector'
     }
 });
 

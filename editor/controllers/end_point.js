@@ -17,7 +17,7 @@ function($, Handlebars, Observable, LineController, view) {
       this.dom.draggable({
         drag: function(event, ui) { return false; }
       });
-      this.dom.on('mousedown', {self: this}, this.draw_line);
+      //this.dom.on('mousedown', {self: this}, this.draw_line);
     }
 
     render() {
@@ -89,6 +89,14 @@ function($, Handlebars, Observable, LineController, view) {
     set_canvas_size(width, height) {
         this.dom.css('top', parseInt(height)-128 + 'px');
         this.dom.css('left', parseInt(width)-128 + 'px');
+    }
+
+    hide() {
+      this.dom.hide();
+    }
+
+    show() {
+      this.dom.show();
     }
   }
 });

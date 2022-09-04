@@ -68,12 +68,13 @@ function(BasicProjectController, ProjectSchema) {
 
     delete_block(block_id) {
       super.delete_block(block_id);
+      this.project.markModified('blocks');
       this.modified = true;
       this.ever_modified = true;
     }
 
-    delete_line(from_id, from_connector_id, target_id) {
-      super.delete_line(from_id, from_connector_id, target_id);
+    delete_line(from_id, from_connector_id, target_id, path = []) {
+      super.delete_line(from_id, from_connector_id, target_id, path);
       this.project.markModified('blocks'); // This is apparently needed for mongoose to pick up on changes to an array in a Map.
       this.modified = true;
       this.ever_modified = true;

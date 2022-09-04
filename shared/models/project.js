@@ -19,9 +19,10 @@ define("Project", [], function() {
           canvas_height: this.canvas_height
         };
 
-        this.blocks.forEach((value, key) => {
+        for (const [key, value] of Object.entries(this.blocks)) {
+        //this.blocks.forEach((value, key) => {
           output.blocks[key] = value.toJSON();
-        });
+        }//);
 
 
         return output;

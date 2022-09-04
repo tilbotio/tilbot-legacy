@@ -5,7 +5,7 @@ function($, Handlebars, Observable, view) {
     constructor() {
       super();
 
-        // @TODO: move to blocks?
+        // @TODO: move to blocks and dynamically load?
         this.options = [
           {
             name: 'Automatically proceed',
@@ -14,7 +14,7 @@ function($, Handlebars, Observable, view) {
             type: 'AutoBlock'
           },
           {
-            name: 'Group',
+            name: 'Group (experimental)',
             description: 'Group several other blocks into one.',
             icon: 'fa-layer-group',
             type: 'GroupBlock'

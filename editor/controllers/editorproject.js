@@ -41,8 +41,8 @@ function(BasicProjectController) {
       this.socket.emit('cmd', 'delete_block', block_id);
     }
 
-    delete_line(from_id, from_connector_id, target_id) {
-      super.delete_line(from_id, from_connector_id, target_id);
+    delete_line(from_id, from_connector_id, target_id, path = []) {
+      super.delete_line(from_id, from_connector_id, target_id, path);
       this.socket.emit('cmd', 'delete_line', [from_id, from_connector_id, target_id]);
     }
 

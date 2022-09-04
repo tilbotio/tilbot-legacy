@@ -14,7 +14,6 @@ function(BlockController) {
     select_or_edit_block(event) {
         if (event.data.self.selected) {
             if (!event.data.self.dragging) {
-                alert('go into group!');
                 event.data.self.notifyAll('move_to_group', {model: event.data.self.model, id: event.data.self.id});
             }
         }

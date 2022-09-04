@@ -1,5 +1,5 @@
-define("EditorController", ["jquery", "handlebars", "Util", "StartingPointController", "EndPointController", "MinimapController", "NewBlockController", "EditBlockController", "BlockController", "GroupBlockController", "EditorProjectController", "text!/editor/views/editor.html"],
-function($, Handlebars, Util, StartingPointController, EndPointController, MinimapController, NewBlockController, EditBlockController, BlockController, GroupBlockController, ProjectController, view) {
+define("EditorController", ["jquery", "handlebars", "Util", "StartingPointController", "EndPointController", "MinimapController", "NewBlockController", "EditBlockController", "BlockController", "GroupBlockController", "GroupConnector", "EditorProjectController", "text!/editor/views/editor.html"],
+function($, Handlebars, Util, StartingPointController, EndPointController, MinimapController, NewBlockController, EditBlockController, BlockController, GroupBlockController, GroupConnector, ProjectController, view) {
 
   return class EditorController {
 
@@ -41,6 +41,7 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
               self.endPointController = new EndPointController();
               self.endPointController.set_canvas_size($('#editor_panel').width(), $('#editor_panel').height());
               self.endPointController.subscribe(self);
+              self.endPointController.hide();
   
               self.minimapController = new MinimapController();
               self.minimapController.subscribe(self);
@@ -74,13 +75,12 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
       $('#btn_run_all').on('click', { self: this }, this.run_all);
       $('#btn_run_selected').on('click', { self: this }, this.run_selected);
 
-      $('#breadcrumbs').on('click', { self: this }, this.breadcrumb_clicked);
-
       $(document).on('keydown', { self: this }, this.key_down);
     }
 
     render() {
       $('#editor_container').append(this.editorTemplate(this.projectController.project));
+      this.refresh_breadcrumbs();
     }
 
     // Callback for observed objects (e.g., blocks, lines)
@@ -100,14 +100,25 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
         case 'scroll_editor': this.scroll_editor(params); break;
         case 'block_changed': this.block_changed(params); break;
         case 'move_to_group': this.move_to_group(params); break;
+        case 'endpoint_line_created': this.endpoint_line_created(params.block_id, params.connector_id, params.description); break;
+        case 'endpoint_line_deleted': this.endpoint_line_deleted(params.block_id, params.connector_id); break;
         default: ;
       }
 
     }
 
     block_changed(block) {
+
       var path = this.get_path();
 
+      // First check if it's the main block in our path that changed
+      if (this.selected_group_blocks.length > 0 && this.selected_group_blocks[this.selected_group_blocks.length-1].model == block) {
+        path.length = path.length - 1;
+        this.projectController.block_changed(this.selected_group_blocks[this.selected_group_blocks.length-1].id, this.selected_group_blocks[this.selected_group_blocks.length-1].model, path);
+        return;
+      }
+      
+      // Otherwise look within the current scope
       var tmpblocks = this.projectController.project.blocks;
 
       if (path.length > 0) {
@@ -269,14 +280,21 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
       }
 
       delete this.blockControllers[block.id];
-      this.projectController.delete_block(block.id);
+
+      if (this.selected_group_blocks.length == 0) {
+        this.projectController.delete_block(block.id);
+      }
+      else {
+        delete this.selected_group_blocks[this.selected_group_blocks.length-1].model.blocks[block.id];
+        this.block_changed(this.selected_group_blocks[this.selected_group_blocks.length-1].model);
+      }
 
       this.no_selection();
       this.minimapController.update_minimap();
     }
 
     delete_line(line) {
-      this.projectController.delete_line(line.from_id, line.from_connector_id, line.target_id);
+      this.projectController.delete_line(line.from_id, line.from_connector_id, line.target_id, this.get_path());
       this.no_selection();
       this.minimapController.update_minimap();
     }
@@ -367,6 +385,22 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
     starting_line_deleted() {
       this.projectController.set_starting_line(-1, this.get_path());
       this.minimapController.update_minimap();
+    }
+
+    endpoint_line_created(block_id, connector_id, description) {
+      this.selected_group_blocks[this.selected_group_blocks.length-1].model.connectors.push(new GroupConnector(block_id, connector_id, description));
+      this.block_changed(this.selected_group_blocks[this.selected_group_blocks.length-1].model);
+    }
+
+    endpoint_line_deleted(block_id, connector_id) {
+      for (var i = 0; i < this.selected_group_blocks[this.selected_group_blocks.length-1].model.connectors.length; i++) {
+        var conn = this.selected_group_blocks[this.selected_group_blocks.length-1].model.connectors[i];
+        if (conn.from_id.toString() == block_id.toString() && conn.from_connector == connector_id) {
+          this.selected_group_blocks[this.selected_group_blocks.length-1].model.connectors.splice(i, 1);
+          this.block_changed(this.selected_group_blocks[this.selected_group_blocks.length-1].model);
+          break;
+        }
+      }
     }
 
     // Source: https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
@@ -540,12 +574,43 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
       console.log(params);
       this.selected_group_blocks.push(params);
       this.load_group(this.selected_group_blocks.length-1);
+      this.refresh_breadcrumbs();
+    }
+
+    refresh_breadcrumbs() {
+      $('#breadcrumbs_items').empty();
+
+      if (this.selected_group_blocks.length == 0) {
+        $('#breadcrumbs').hide();
+      }
+
+      else {
+        $('#breadcrumbs_items').append($('<div class="breadcrumb_item" data-block-id="0">Main</div>'));
+
+        for (var i = 0; i < this.selected_group_blocks.length; i++) {
+          if (i < this.selected_group_blocks.length - 1) {
+            $('#breadcrumbs_items').append($('<div class="breadcrumb_separator"> &#62; </div><div class="breadcrumb_item" data-block-id="' + this.selected_group_blocks[i].id + '">' + this.selected_group_blocks[i].model.name + '</div>'));
+          }
+          else {
+            $('#breadcrumbs_items').append($('<div class="breadcrumb_separator"> &#62; </div><div class="breadcrumb_item_disabled" data-block-id="' + this.selected_group_blocks[i].id + '">' + this.selected_group_blocks[i].model.name + '</div>'));
+          }
+          
+        }
+
+        $('.breadcrumb_item').on('click', { self: this }, this.breadcrumb_clicked);
+        $('#breadcrumbs').show();  
+      }
+
     }
 
     load_group(id) {
       var group = this.projectController.project;
       if (id !== null) {
         group = this.selected_group_blocks[id].model;
+        this.endPointController.show();  
+      }
+      else {
+        this.endPointController.hide();
       }
 
       // Empty canvas first before loading
@@ -601,10 +666,25 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
     } 
     
     breadcrumb_clicked(event) {
-      alert('breadcrumb!');
-      // @TODO: support other intermediate steps and update the array accordingly
-      event.data.self.selected_group_blocks = [];
-      event.data.self.load_group(null);
+      console.log();
+
+      var id = $(this).attr('data-block-id');
+
+      if (id == 0) {
+        event.data.self.selected_group_blocks = [];
+        event.data.self.load_group(null);  
+      }
+      else {
+        for (var i = 0; i < event.data.self.selected_group_blocks.length; i++) {
+          if (event.data.self.selected_group_blocks[i].id == id) {
+            event.data.self.selected_group_blocks.length = i+1;
+            console.log(event.data.self.selected_group_blocks);
+            event.data.self.load_group(event.data.self.selected_group_blocks.length-1);
+            break;
+          }
+        }
+      }
+      event.data.self.refresh_breadcrumbs();      
     }
 
   }

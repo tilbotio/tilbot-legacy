@@ -30,8 +30,10 @@ requirejs.config({
         MCBlock: 'models/blocks/mcblock',
         TextBlock: 'models/blocks/textblock',
         ListBlock: 'models/blocks/listblock',
+        GroupBlock: 'models/blocks/groupblock',
         BasicConnector: 'models/basicconnector',
-        LabeledConnector: 'models/connectors/labeledconnector'
+        LabeledConnector: 'models/connectors/labeledconnector',
+        GroupConnector: 'models/connectors/groupconnector'
     }
 });
 

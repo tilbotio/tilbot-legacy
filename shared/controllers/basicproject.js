@@ -50,21 +50,34 @@ function(Project) {
       console.log(this.project.blocks);
     }
 
-    delete_line(from_id, from_connector_id, target_id) {
-      console.log(this.project);
-      console.log(from_id);
-      console.log(from_connector_id);
-      console.log(target_id);
+    delete_line(from_id, from_connector_id, target_id, path = []) {
+      if (path.length == 0) {
+        if (this.project.blocks[from_id] !== undefined) {
+          var tars = this.project.blocks[from_id].connectors[from_connector_id].targets;
+    
+          var index = tars.indexOf(target_id);
+      
+          if (index !== -1) {
+            tars.splice(index, 1);
+            this.project.blocks[from_id].connectors[from_connector_id].targets = tars;        
+          }  
+        }
+      }
 
-      if (this.project.blocks[from_id] !== undefined) {
-        var tars = this.project.blocks[from_id].connectors[from_connector_id].targets;
-        //console.log(tars.get(0));
+      else {
+        var block = this.project.blocks[path[0]];
+
+        for (var i = 1; i < path.length; i++) {
+          block = block.blocks[path[i]];
+        }
+        
+        var tars = block.blocks[from_id].connectors[from_connector_id].targets;
   
         var index = tars.indexOf(target_id);
      
         if (index !== -1) {
           tars.splice(index, 1);
-          this.project.blocks[from_id].connectors[from_connector_id].targets = tars;        
+          block.blocks[from_id].connectors[from_connector_id].targets = tars;        
         }  
       }
     }
