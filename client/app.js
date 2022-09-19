@@ -17,7 +17,7 @@ requirejs.config({
         TextClientController: 'client/controllers/text_client',
         TextServerController: 'client/controllers/text_server',
         TypingIndicatorController: 'client/controllers/typing_indicator',
-        ProjectController: 'client/controllers/project',
+        BasicProjectController: 'controllers/basicproject',
         LocalProjectController: 'client/controllers/localproject',
         RemoteProjectController: 'client/controllers/remoteproject',
         InputMCController: 'client/controllers/input_mc',

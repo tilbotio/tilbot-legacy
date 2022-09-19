@@ -1,7 +1,7 @@
-define("EditorProjectController", ["BasicProjectController"],
-function(BasicProjectController) {
+define("EditorProjectController", ["BasicEditorProjectController"],
+function(BasicEditorProjectController) {
 
-  return class EditorProjectController extends BasicProjectController {
+  return class EditorProjectController extends BasicEditorProjectController {
     constructor(project_id) {
         super();
 

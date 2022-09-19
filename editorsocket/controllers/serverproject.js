@@ -1,7 +1,7 @@
-define("ServerProjectController", ["BasicProjectController", "ProjectSchema"],
-function(BasicProjectController, ProjectSchema) {
+define("ServerProjectController", ["BasicEditorProjectController", "ProjectSchema"],
+function(BasicEditorProjectController, ProjectSchema) {
 
-  return class ServerProjectController extends BasicProjectController {
+  return class ServerProjectController extends BasicEditorProjectController {
     constructor(socket, mongoose) {
         super();
 

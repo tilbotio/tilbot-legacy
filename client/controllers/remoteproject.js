@@ -1,6 +1,6 @@
-define("RemoteProjectController", ["ProjectController"], function(ProjectController) {
+define("RemoteProjectController", ["BasicProjectController"], function(BasicProjectController) {
 
-  return class RemoteProjectController extends ProjectController {
+  return class RemoteProjectController extends BasicProjectController {
 
     constructor(port) {
       super();

@@ -24,6 +24,7 @@ requirejs.config({
         GroupBlockController: 'editor/controllers/groupblock',
         LineController: 'editor/controllers/line',
         BasicProjectController: 'shared/controllers/basicproject',
+        BasicEditorProjectController: 'shared/controllers/basiceditorproject',        
         EditorProjectController: 'editor/controllers/editorproject',
 
         // Models

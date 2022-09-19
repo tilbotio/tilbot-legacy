@@ -20,6 +20,7 @@ requirejs.config({
     ProjectApiController: 'api/project',
 
     BasicProjectController: 'shared/controllers/basicproject',
+    BasicEditorProjectController: 'shared/controllers/basiceditorproject',
     ServerProjectController: 'editorsocket/controllers/serverproject',
 
     ProjectSchema: 'shared/models/db/project',
