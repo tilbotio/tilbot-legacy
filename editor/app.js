@@ -29,11 +29,11 @@ requirejs.config({
         // Models
         Project: 'models/project',
         BasicBlock: 'models/basicblock',
-		GroupBlock: "shared/models/blocks/groupblock",
-		TextBlock: "shared/models/blocks/textblock",
 		AutoBlock: "shared/models/blocks/autoblock",
+		GroupBlock: "shared/models/blocks/groupblock",
 		ListBlock: "shared/models/blocks/listblock",
 		MCBlock: "shared/models/blocks/mcblock",
+		TextBlock: "shared/models/blocks/textblock",
 
         BasicConnector: 'models/basicconnector',
         LabeledConnector: 'models/connectors/labeledconnector',

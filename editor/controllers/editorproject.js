@@ -51,9 +51,19 @@ function(BasicProjectController) {
       this.socket.emit('cmd', 'set_starting_line', [val, path]);
     }
 
-    block_changed(key, block, path = []) {
-      super.block_changed(key, block, path);
-      this.socket.emit('cmd', 'block_changed', [key, block, path]);
+    block_changed(key, block) {
+      super.block_changed(key, block);      
+      this.socket.emit('cmd', 'block_changed', [key, block]);
+    }
+
+    move_to_group(params) {
+      super.move_to_group(params);
+      this.socket.emit('cmd', 'move_to_group', params);
+    }
+
+    move_to_root() {
+      super.move_to_root();
+      this.socket.emit('cmd', 'move_to_root');
     }
   }
 });

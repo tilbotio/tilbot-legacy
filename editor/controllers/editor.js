@@ -1,5 +1,5 @@
-define("EditorController", ["jquery", "handlebars", "Util", "StartingPointController", "EndPointController", "MinimapController", "NewBlockController", "EditBlockController", "BlockController", "GroupBlockController", "GroupConnector", "EditorProjectController", "text!/editor/views/editor.html"],
-function($, Handlebars, Util, StartingPointController, EndPointController, MinimapController, NewBlockController, EditBlockController, BlockController, GroupBlockController, GroupConnector, ProjectController, view) {
+define("EditorController", ["jquery", "handlebars", "Util", "StartingPointController", "EndPointController", "MinimapController", "NewBlockController", "EditBlockController", "BlockController", "GroupBlockController", "EditorProjectController", "text!/editor/views/editor.html"],
+function($, Handlebars, Util, StartingPointController, EndPointController, MinimapController, NewBlockController, EditBlockController, BlockController, GroupBlockController, ProjectController, view) {
 
   return class EditorController {
 
@@ -14,7 +14,6 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
 
       this.blockControllers = {};
       this.block_dragging = false;
-      this.selected_group_blocks = [];
 
       this.projectController = new ProjectController(this.project_id); // note: project ID not in BasicProjectController.
 
@@ -107,35 +106,8 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
 
     }
 
-    block_changed(block) {
-
-      var path = this.get_path();
-
-      // First check if it's the main block in our path that changed
-      if (this.selected_group_blocks.length > 0 && this.selected_group_blocks[this.selected_group_blocks.length-1].model == block) {
-        path.length = path.length - 1;
-        this.projectController.block_changed(this.selected_group_blocks[this.selected_group_blocks.length-1].id, this.selected_group_blocks[this.selected_group_blocks.length-1].model, path);
-        return;
-      }
-      
-      // Otherwise look within the current scope
-      var tmpblocks = this.projectController.project.blocks;
-
-      if (path.length > 0) {
-        tmpblocks = tmpblocks[path[0]].blocks;
-
-        for (var i = 1; i < path.length; i++) {
-          tmpblocks = tmpblocks[path[i]].blocks;
-        }
-      }
-      
-      for (const [key, value] of Object.entries(tmpblocks)) {
-        if (value == block) {
-          console.log('found the block!');
-          this.projectController.block_changed(key, value, path);
-          return;
-        }
-      }
+    block_changed(params) {
+      this.projectController.block_changed(params.id, params.model);
     }
 
     show_popup_new_block(event) {
@@ -143,9 +115,9 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
       event.data.self.newBlockController.show();
     }
 
-    show_popup_edit_block(model) {
+    show_popup_edit_block(params) {
       $('#overlay').show();
-      this.editBlockController.show(model);
+      this.editBlockController.show(params.id, params.model);
     }
 
     close_overlay(event = undefined) {
@@ -174,12 +146,7 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
 
 
       // Add model to collection
-      if (this.selected_group_blocks.length > 0) {
-        this.selected_group_blocks[this.selected_group_blocks.length-1].model.blocks[id] = block;
-      }
-      else {
-        this.projectController.add_block(block);
-      }
+      this.projectController.add_block(block);
 
       // Create controller with actual template
       if (block.type == 'Group') {
@@ -281,20 +248,14 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
 
       delete this.blockControllers[block.id];
 
-      if (this.selected_group_blocks.length == 0) {
-        this.projectController.delete_block(block.id);
-      }
-      else {
-        delete this.selected_group_blocks[this.selected_group_blocks.length-1].model.blocks[block.id];
-        this.block_changed(this.selected_group_blocks[this.selected_group_blocks.length-1].model);
-      }
+      this.projectController.delete_block(block.id);
 
       this.no_selection();
       this.minimapController.update_minimap();
     }
 
     delete_line(line) {
-      this.projectController.delete_line(line.from_id, line.from_connector_id, line.target_id, this.get_path());
+      this.projectController.delete_line(line.from_id, line.from_connector_id, line.target_id);
       this.no_selection();
       this.minimapController.update_minimap();
     }
@@ -360,13 +321,10 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
       var new_width = Math.max(default_width, most_right);
       var new_height = Math.max(default_height, most_bottom);
 
-      if (this.selected_group_blocks.length > 0) {
-        this.projectController.set_canvas_size(new_width, new_height, this.get_path());
+      this.projectController.set_canvas_size(new_width, new_height);
+
+      if (this.projectController.selected_group_blocks.length > 0) {
         this.endPointController.set_canvas_size(new_width, new_height);
-      }
-      else {
-        console.log('setting canvas size on main project');
-        this.projectController.set_canvas_size(new_width, new_height);
       }
 
       console.log(this.projectController.project);
@@ -378,29 +336,21 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
     }
 
     starting_line_created(target) {
-      this.projectController.set_starting_line(target, this.get_path());
+      this.projectController.set_starting_line(target);
       this.minimapController.update_minimap();
     }
 
     starting_line_deleted() {
-      this.projectController.set_starting_line(-1, this.get_path());
+      this.projectController.set_starting_line(-1);
       this.minimapController.update_minimap();
     }
 
     endpoint_line_created(block_id, connector_id, description) {
-      this.selected_group_blocks[this.selected_group_blocks.length-1].model.connectors.push(new GroupConnector(block_id, connector_id, description));
-      this.block_changed(this.selected_group_blocks[this.selected_group_blocks.length-1].model);
+      this.projectController.endpoint_line_created(block_id, connector_id, description);
     }
 
     endpoint_line_deleted(block_id, connector_id) {
-      for (var i = 0; i < this.selected_group_blocks[this.selected_group_blocks.length-1].model.connectors.length; i++) {
-        var conn = this.selected_group_blocks[this.selected_group_blocks.length-1].model.connectors[i];
-        if (conn.from_id.toString() == block_id.toString() && conn.from_connector == connector_id) {
-          this.selected_group_blocks[this.selected_group_blocks.length-1].model.connectors.splice(i, 1);
-          this.block_changed(this.selected_group_blocks[this.selected_group_blocks.length-1].model);
-          break;
-        }
-      }
+      this.projectController.endpoint_line_deleted(block_id, connector_id);
     }
 
     // Source: https://stackoverflow.com/questions/19721439/download-json-object-as-a-file-from-browser
@@ -412,20 +362,6 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
       document.body.appendChild(downloadAnchorNode); // required for firefox
       downloadAnchorNode.click();
       downloadAnchorNode.remove();
-    }
-
-    get_path() {
-      var path = [];
-
-      console.log(this.selected_group_blocks);
-
-      for (var b in this.selected_group_blocks) {
-        path.push(this.selected_group_blocks[b].id);
-      }
-
-      console.log(path);
-
-      return path;
     }
 
     load_project(self, json, send_to_server = false) {
@@ -572,27 +508,27 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
 
     move_to_group(params) {
       console.log(params);
-      this.selected_group_blocks.push(params);
-      this.load_group(this.selected_group_blocks.length-1);
+      this.projectController.move_to_group(params);
+      this.load_group(this.projectController.selected_group_blocks.length-1);
       this.refresh_breadcrumbs();
     }
 
     refresh_breadcrumbs() {
       $('#breadcrumbs_items').empty();
 
-      if (this.selected_group_blocks.length == 0) {
+      if (this.projectController.selected_group_blocks.length == 0) {
         $('#breadcrumbs').hide();
       }
 
       else {
         $('#breadcrumbs_items').append($('<div class="breadcrumb_item" data-block-id="0">Main</div>'));
 
-        for (var i = 0; i < this.selected_group_blocks.length; i++) {
-          if (i < this.selected_group_blocks.length - 1) {
-            $('#breadcrumbs_items').append($('<div class="breadcrumb_separator"> &#62; </div><div class="breadcrumb_item" data-block-id="' + this.selected_group_blocks[i].id + '">' + this.selected_group_blocks[i].model.name + '</div>'));
+        for (var i = 0; i < this.projectController.selected_group_blocks.length; i++) {
+          if (i < this.projectController.selected_group_blocks.length - 1) {
+            $('#breadcrumbs_items').append($('<div class="breadcrumb_separator"> &#62; </div><div class="breadcrumb_item" data-block-id="' + this.projectController.selected_group_blocks[i].id + '">' + this.projectController.selected_group_blocks[i].model.name + '</div>'));
           }
           else {
-            $('#breadcrumbs_items').append($('<div class="breadcrumb_separator"> &#62; </div><div class="breadcrumb_item_disabled" data-block-id="' + this.selected_group_blocks[i].id + '">' + this.selected_group_blocks[i].model.name + '</div>'));
+            $('#breadcrumbs_items').append($('<div class="breadcrumb_separator"> &#62; </div><div class="breadcrumb_item_disabled" data-block-id="' + this.projectController.selected_group_blocks[i].id + '">' + this.projectController.selected_group_blocks[i].model.name + '</div>'));
           }
           
         }
@@ -606,7 +542,7 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
     load_group(id) {
       var group = this.projectController.project;
       if (id !== null) {
-        group = this.selected_group_blocks[id].model;
+        group = this.projectController.selected_group_blocks[id].model;
         this.endPointController.show();  
       }
       else {
@@ -671,15 +607,15 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
       var id = $(this).attr('data-block-id');
 
       if (id == 0) {
-        event.data.self.selected_group_blocks = [];
+        event.data.self.projectController.move_to_root();
         event.data.self.load_group(null);  
       }
       else {
-        for (var i = 0; i < event.data.self.selected_group_blocks.length; i++) {
-          if (event.data.self.selected_group_blocks[i].id == id) {
-            event.data.self.selected_group_blocks.length = i+1;
-            console.log(event.data.self.selected_group_blocks);
-            event.data.self.load_group(event.data.self.selected_group_blocks.length-1);
+        for (var i = 0; i < event.data.self.projectController.selected_group_blocks.length; i++) {
+          if (event.data.self.projectController.selected_group_blocks[i].id == id) {
+            event.data.self.projectController.selected_group_blocks.length = i+1;
+            console.log(event.data.self.projectController.selected_group_blocks);
+            event.data.self.load_group(event.data.self.projectController.selected_group_blocks.length-1);
             break;
           }
         }

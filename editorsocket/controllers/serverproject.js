@@ -62,6 +62,7 @@ function(BasicProjectController, ProjectSchema) {
 
     add_block(block) {
       super.add_block(block);
+      this.project.markModified('blocks');
       this.modified = true;
       this.ever_modified = true;
     }
@@ -87,25 +88,38 @@ function(BasicProjectController, ProjectSchema) {
       this.ever_modified = true;
     }
 
-    block_changed(key, block, path = []) {           
-      super.block_changed(key, block, path);
+    block_changed(key, block) {           
+      super.block_changed(key, block);
 
-      if (path.length == 0) {
-        this.project.blocks[key] = block;
-      } 
-      else {
-        var tmpblock = this.project.blocks[path[0]];
 
-        for (var i = 1; i < path.length; i++) {
-          tmpblock = tmpblock.blocks[path[i]];
+      var path = this.get_path();
+
+      var tmpblocks = this.project.blocks;
+
+      if (path.length > 0) {
+        for (var i = 0; i < path.length; i++) {
+          tmpblocks = tmpblocks[path[i]].blocks;
+
+          if (key in tmpblocks) {
+            tmpblocks[key] = block;
+            this.project.markModified('blocks');
+            this.modified = true;
+            this.ever_modified = true;  
+            return;
+          }
         }
-
-        tmpblock.blocks[key] = block;
-      }     
-
-      this.project.markModified('blocks');
-      this.modified = true;
-      this.ever_modified = true;
+      }
+      
+      for (const [k, v] of Object.entries(tmpblocks)) {
+        if (k == key) {
+          console.log('found the block!');
+          tmpblocks[k] = block;
+          this.project.markModified('blocks');
+          this.modified = true;
+          this.ever_modified = true;          
+          return;
+        }
+      }      
     }    
 
     save() {

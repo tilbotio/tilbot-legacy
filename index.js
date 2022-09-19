@@ -13,6 +13,7 @@ requirejs.config({
     ListBlock: 'shared/models/blocks/listblock',*/
     BasicConnector: 'shared/models/basicconnector',
     LabeledConnector: 'shared/models/connectors/labeledconnector',
+    GroupConnector: 'shared/models/connectors/groupconnector',
     Observable: 'shared/controllers/observable',
 
     UserApiController: 'api/user',

@@ -113,7 +113,7 @@ function($, Handlebars, Observable, LineController, view) {
 
     edit_block(event) {
       if (!event.data.self.dragging) {
-        event.data.self.notifyAll('edit_block', event.data.self.model);
+        event.data.self.notifyAll('edit_block', {id: event.data.self.id, model: event.data.self.model});
       }
     }
 
@@ -215,7 +215,7 @@ function($, Handlebars, Observable, LineController, view) {
           this.notifyAll('endpoint_line_created', {block_id: this.id, connector_id: params.connector_id, description: this.model.name + ':' + label});
         }
 
-        this.notifyAll('block_changed', this.model);
+        this.notifyAll('block_changed', {id: this.id, model: this.model});
         this.notifyAll('update_minimap');
       }
     }
@@ -232,7 +232,7 @@ function($, Handlebars, Observable, LineController, view) {
       this.notifyAll('line_deleted', {line: src});
       if (src.target_id == -1) {
         this.notifyAll('endpoint_line_deleted', {block_id: src.from_id, connector_id: src.from_connector_id});
-        this.notifyAll('block_changed', this.model);
+        this.notifyAll('block_changed', {id: this.id, model: this.model});
       }
     }
 
