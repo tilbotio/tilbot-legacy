@@ -69,9 +69,9 @@ define("RemoteProjectServer", ["LogSchema"], function(LogSchema) {
         //this.clients[socket_id].messages.push(new Models.Message({message: this.project.blocks[this.clients[socket_id].current_block_id].content, source: 'bot'}));
         //this.clients[socket_id].save();
   
-        if (this.project.blocks.get(this.clients[socket_id].current_block_id.toString()).type == 'Auto') {
-          if (this.project.blocks.get(this.clients[socket_id].current_block_id.toString()).connectors.length > 0 && this.project.blocks.get(this.clients[socket_id].current_block_id.toString()).connectors[0].targets.length > 0) {
-            this.clients[socket_id].current_block_id = this.project.blocks.get(this.clients[socket_id].current_block_id.toString()).connectors[0].targets[0];
+        if (this.project.blocks[this.clients[socket_id].current_block_id.toString()].type == 'Auto') {
+          if (this.project.blocks[this.clients[socket_id].current_block_id.toString()].connectors.length > 0 && this.project.blocks[this.clients[socket_id].current_block_id.toString()].connectors[0].targets.length > 0) {
+            this.clients[socket_id].current_block_id = this.project.blocks[this.clients[socket_id].current_block_id.toString()].connectors[0].targets[0];
             this.plan_message(socket_id, this.clients[socket_id].current_block_id);  
           }
         }
@@ -81,14 +81,14 @@ define("RemoteProjectServer", ["LogSchema"], function(LogSchema) {
         var self = this;
 
         setTimeout(function() {
-          self.send_message(socket_id, self.project.blocks.get(block_id.toString()));
-        }, this.project.blocks.get(block_id.toString()).delay * 1000);
+          self.send_message(socket_id, self.project.blocks[block_id.toString()]);
+        }, this.project.blocks[block_id.toString()].delay * 1000);
       }
   
       receive_message(socket_id, str) {
         //this.clients[socket_id].messages.push(new Models.Message({message: str, source: 'user'}));
         //this.clients[socket_id].save();
-        var block = this.project.blocks.get(this.clients[socket_id].current_block_id.toString());
+        var block = this.project.blocks[this.clients[socket_id].current_block_id.toString()];
   
         // @TODO: improve processing of message
         if (block.type == 'MC') {
