@@ -43,7 +43,7 @@ define("LocalProjectController", ["BasicProjectController"], function(BasicProje
       }
     }
 
-    check_group_exit(id) {
+    check_group_exit(id, from_connector) {
       var path = this.get_path();
 
       if (id == -1) {            
@@ -61,10 +61,10 @@ define("LocalProjectController", ["BasicProjectController"], function(BasicProje
         }
 
         for (var i = 0; i < block.blocks[group_block_id.toString()].connectors.length; i++) {
-          if (block.blocks[group_block_id.toString()].connectors[i].from_id == this.current_block_id) {
+          if (block.blocks[group_block_id.toString()].connectors[i].from_id == this.current_block_id && block.blocks[group_block_id.toString()].connectors[i].from_connector == from_connector) {
             var new_id = block.blocks[group_block_id.toString()].connectors[i].targets[0];
             this.current_block_id = group_block_id;
-            this.check_group_exit(new_id);
+            this.check_group_exit(new_id, from_connector);
             break;
           }
         }
@@ -72,7 +72,7 @@ define("LocalProjectController", ["BasicProjectController"], function(BasicProje
 
       else {
         this.current_block_id = id;
-        this._send_current_message();
+        this._send_current_message();  
       }
     }
 
@@ -95,12 +95,13 @@ define("LocalProjectController", ["BasicProjectController"], function(BasicProje
 
         if (block.blocks[this.current_block_id.toString()].type == 'Auto') {
           var new_id = block.blocks[this.current_block_id.toString()].connectors[0].targets[0];
-          this.check_group_exit(new_id);
+          this.check_group_exit(new_id, 0);
         }                  
       }      
     }
 
     _send_current_message() {
+      console.log('sending: ' + this.current_block_id);
       var self = this;
       var path = this.get_path();
       var block = this.project;
@@ -114,29 +115,46 @@ define("LocalProjectController", ["BasicProjectController"], function(BasicProje
       }       
       
       block = block.blocks[this.current_block_id.toString()];
+      
 
       setTimeout(function() {
         self.send_message(block);
-      }, block.delay * 1000);
+      }, block.delay * 1000);  
+
     }
 
     receive_message(str) {
+      var path = this.get_path();
+
       var block = this.project.blocks[this.current_block_id.toString()];
+
+      if (path.length > 0) {
+        var block = this.project.blocks[path[0]];
+
+        for (var i = 1; i < path.length; i++) {
+          block = block.blocks[path[i]];
+        }
+
+        block = block.blocks[this.current_block_id.toString()];
+      }
 
       // @TODO: improve processing of message
       if (block.type == 'MC') {
         for (var c in block.connectors) {
           if (block.connectors[c].label == str) {
-            this.current_block_id = block.connectors[c].targets[0];
-            this._send_current_message();
+            var new_id = block.connectors[c].targets[0];
+            console.log(new_id);
+            this.check_group_exit(new_id, c);
+            //this._send_current_message();
           }
         }
       }
       else if (block.type == 'Text' || block.type == 'List') {
         for (var c in block.connectors) {
           if (block.connectors[c].label == str || block.connectors[c].label == '[else]') {
-            this.current_block_id = block.connectors[c].targets[0];
-            this._send_current_message();
+            var new_id = block.connectors[c].targets[0];
+            this.check_group_exit(new_id, c);
+            //this._send_current_message();
           }
         }
       }
