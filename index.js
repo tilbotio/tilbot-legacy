@@ -52,7 +52,10 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
 
     tmppaths[blockname] = 'shared/models/blocks/' + dirent.name;
 
-
+    // Add it to the list of paths on the server-side
+    requirejs.config({
+      blockname: 'shared/models/blocks/' + dirent.name
+    });
 
     //var blockname = dirent.name.charAt(0).toUpperCase() + dirent.name.slice(1);
     //blockname.replace('block.json', 'Block');
@@ -60,11 +63,9 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
   }
   dir.closeSync()
 
-  
-  // Add it to the list of paths on the server-side
-  requirejs.config({
-    paths: tmppaths
-  });
+  console.log(requirejs.s.contexts._.config);
+
+  console.log(tmppaths);
 
   // Update the client-side list of paths
   //fs.copyFile('/editor/app.jstemplate', '/editor/app.js');

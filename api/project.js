@@ -42,8 +42,6 @@ define("ProjectApiController", ["ProjectSchema", "Project", "crypto-js/md5"], fu
                     else {
                         // Add new project
                         Project.fromJSON(JSON.parse(project)).then(function(p) {
-                            console.log(p);
-
                             var newschema = ProjectSchema.fromModel(p);
                             newschema.id = project_id;
                             newschema.user_id = username;
