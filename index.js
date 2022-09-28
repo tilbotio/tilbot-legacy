@@ -54,8 +54,10 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
     tmppaths[blockname] = 'shared/models/blocks/' + dirent.name;
 
     // Add it to the list of paths on the server-side
+    t = {};
+    t[blockname] = 'shared/models/blocks/' + dirent.name;
     requirejs.config({
-      blockname: 'shared/models/blocks/' + dirent.name
+      paths: t
     });
 
     //var blockname = dirent.name.charAt(0).toUpperCase() + dirent.name.slice(1);
