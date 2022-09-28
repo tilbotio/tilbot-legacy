@@ -55,7 +55,7 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
 
     // Add it to the list of paths on the server-side
     t = {};
-    t[blockname] = 'shared/models/blocks/' + dirent.name;
+    t[blockname] = 'shared/models/blocks/' + dirent.name.slice(0, -3);
     requirejs.config({
       paths: t
     });
