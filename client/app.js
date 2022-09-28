@@ -20,6 +20,7 @@ requirejs.config({
         BasicProjectController: 'controllers/basicproject',
         LocalProjectController: 'client/controllers/localproject',
         RemoteProjectController: 'client/controllers/remoteproject',
+        ExecutingProjectController: 'shared/controllers/executingproject',
         InputMCController: 'client/controllers/input_mc',
         InputListController: 'client/controllers/input_list',
 

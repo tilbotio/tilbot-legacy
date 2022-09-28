@@ -22,6 +22,7 @@ requirejs.config({
     BasicProjectController: 'shared/controllers/basicproject',
     BasicEditorProjectController: 'shared/controllers/basiceditorproject',
     ServerProjectController: 'editorsocket/controllers/serverproject',
+    ExecutingProjectController: 'shared/controllers/executingproject',
 
     ProjectSchema: 'shared/models/db/project',
     UserSchema: 'shared/models/db/user'

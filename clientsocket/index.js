@@ -4,6 +4,9 @@ var requirejs = require('requirejs');
 requirejs.config({
   nodeRequire: require,
   paths: {
+    BasicProjectController: '../shared/controllers/basicproject',
+    ExecutingProjectController: '../shared/controllers/executingproject',
+    SocketProjectController: 'controllers/socketproject',
     RemoteProjectServer: 'controllers/projectserver',
     /*Models: 'client/remote/dbmodels',
     Project: 'shared/models/project',
@@ -13,12 +16,13 @@ requirejs.config({
     TextBlock: 'shared/models/blocks/textblock',
     ListBlock: 'shared/models/blocks/listblock',
     BasicConnector: 'shared/models/basicconnector',
-    LabeledConnector: 'shared/models/connectors/labeledconnector',
-    Observable: 'shared/controllers/observable',
+    LabeledConnector: 'shared/models/connectors/labeledconnector',*/
+    Observable: '../shared/controllers/observable',
 
-    UserApiController: 'api/user',
+    /*UserApiController: 'api/user',
     ProjectApiController: 'api/project',*/
 
+    Project: '../shared/models/project',
     ProjectSchema: '../shared/models/db/project',
     LogSchema: '../shared/models/db/log'
     //UserSchema: 'shared/models/db/user'

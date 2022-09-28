@@ -1,6 +1,6 @@
-define("LocalProjectController", ["BasicProjectController"], function(BasicProjectController) {
+define("LocalProjectController", ["ExecutingProjectController"], function(ExecutingProjectController) {
 
-  return class LocalProjectController extends BasicProjectController {
+  return class LocalProjectController extends ExecutingProjectController {
 
     constructor(json_str) {
       super();
@@ -40,39 +40,6 @@ define("LocalProjectController", ["BasicProjectController"], function(BasicProje
       }
       else {
         this.notifyAll('chatbot_message', {type: block.type, content: block.content, params: params});
-      }
-    }
-
-    check_group_exit(id, from_connector) {
-      var path = this.get_path();
-
-      if (id == -1) {            
-        var group_block_id = path[path.length-1];
-        this.move_level_up();            
-
-        path = this.get_path();
-
-        var block = this.project;
-
-        if (path.length > 0) {
-          for (var i = 0; i < path.length; i++) {
-            block = block.blocks[path[i]];
-          }
-        }
-
-        for (var i = 0; i < block.blocks[group_block_id.toString()].connectors.length; i++) {
-          if (block.blocks[group_block_id.toString()].connectors[i].from_id == this.current_block_id && block.blocks[group_block_id.toString()].connectors[i].from_connector == from_connector) {
-            var new_id = block.blocks[group_block_id.toString()].connectors[i].targets[0];
-            this.current_block_id = group_block_id;
-            this.check_group_exit(new_id, from_connector);
-            break;
-          }
-        }
-      }
-
-      else {
-        this.current_block_id = id;
-        this._send_current_message();  
       }
     }
 
