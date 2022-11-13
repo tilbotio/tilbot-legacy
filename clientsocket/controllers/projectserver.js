@@ -25,6 +25,10 @@ define("RemoteProjectServer", ["SocketProjectController"], function(SocketProjec
               socket.on('user_message', (str) => {
                 self.clients[socket.id].receive_message(str);
               });
+
+              socket.on('qualtrics id', (str) => {
+                self.clients[socket.id].store_qualtrics_id(str);
+              })
   
               socket.on('disconnect', () => {
                 //self.clients[socket.id].session_closed = new Date();

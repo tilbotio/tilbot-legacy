@@ -12,6 +12,11 @@ define("RemoteProjectController", ["BasicProjectController"], function(Executing
         self.socket = io(document.URL.substring(0, document.URL.length-33) + ':' + port);
 
         self.socket.on('bot message', self.message_received.bind(self));  
+
+        // Broadcast message that everything is loaded in case Tilbot is running in an iFrame.
+        if (parent !== window) {
+          parent.postMessage('tilbot loaded', '*');
+        }        
       });
     }
 
@@ -51,6 +56,10 @@ define("RemoteProjectController", ["BasicProjectController"], function(Executing
 
     receive_message(str) {
       this.socket.emit('user_message', str);
+    }
+
+    send_qualtrics_id(qid) {
+      this.socket.emit('qualtrics id', qid);
     }
 
   }

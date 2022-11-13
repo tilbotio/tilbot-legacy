@@ -18,7 +18,14 @@ define("SocketProjectController", ["ExecutingProjectController", "LogSchema", "M
         });
 
         this._send_current_message();
-      }      
+      }
+      
+      store_qualtrics_id(qid) {
+        this.log.qualtrics_id = qid;
+        this.log.save((err) => {
+
+        });
+      }
       
       send_message(block) {
         var params = {};

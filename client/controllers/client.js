@@ -40,11 +40,11 @@ function($, Handlebars, TextClientController, TextServerController, TypingIndica
                   }
                   else {
                     self.projectcontroller = new RemoteProjectController(socket);
-                    self.projectcontroller.subscribe(self);    
+                    self.projectcontroller.subscribe(self);                     
                   }
                 });
               }                
-            }      
+            }
 
             // Temporary fix to check whether we are in an iFrame.
             // If not (stand-alone), use remote project manager
@@ -61,7 +61,7 @@ function($, Handlebars, TextClientController, TextServerController, TypingIndica
     bindEvents() {
       this.dom.on('keypress', { self: this }, this.key_pressed);
 
-      $(window).on('message', { self: this }, this.project_received);
+      $(window).on('message', { self: this }, this.message_received);
 
       $('#send_icon').on('click', { self: this}, this.post_message);
 
@@ -117,6 +117,21 @@ function($, Handlebars, TextClientController, TextServerController, TypingIndica
         event.data.self.current_params = undefined;
       }
 
+    }
+
+    message_received(event) {
+      let msg = event.originalEvent.data;
+
+      // This could be a project to load, or a Qualtrics ID
+      let json_msg = JSON.parse(msg);
+
+      if (json_msg.qualtrics_id !== undefined) {
+        event.data.self.projectcontroller.send_qualtrics_id(json_msg.qualtrics_id);
+      }
+
+      else {
+        event.data.self.project_received(event);
+      }
     }
 
     project_received(event) {
