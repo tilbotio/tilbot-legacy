@@ -196,7 +196,14 @@ define("SocketProjectController", ["ExecutingProjectController", "LogSchema", "M
             }
           }
         }
-      }      
+      }     
+      
+      log_disconnect() {
+        this.log.session_closed = new Date();
+        this.log.save((err) => {
+
+        });
+      }
   
       /*receive_message(str) {
         //this.clients[socket_id].messages.push(new Models.Message({message: str, source: 'user'}));

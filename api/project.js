@@ -1,4 +1,4 @@
-define("ProjectApiController", ["ProjectSchema", "Project", "crypto-js/md5"], function(ProjectSchema, Project, MD5) {
+define("ProjectApiController", ["ProjectSchema", "Project", "LogSchema", "crypto-js/md5"], function(ProjectSchema, Project, LogSchema, MD5) {
     
     return class ProjectApiController {
 
@@ -23,7 +23,36 @@ define("ProjectApiController", ["ProjectSchema", "Project", "crypto-js/md5"], fu
                     resolve(project);
                 });
             });
-        }    
+        }   
+        
+        /**
+         * Retrieve a project's logs
+         *
+         * @param {string} id - The project id to search for.
+         * @return {JSONObject} The logs in .csv format (2 files, one containing user's text one containing bot's text)
+         */
+         static get_logs(id) {
+            return new Promise(resolve => {
+                let to_return = "project_id;session_id;session_start;session_end;message_source;message_time;message_content\r\n";
+
+                LogSchema.find({ project_id: id }).then(function(logs) {
+                    for (var l in logs) {
+                        for (var m in logs[l].messages) {
+                            let started = new Date(logs[l].session_started);
+                            let started_str = started.getFullYear() + '-' + ('0' + started.getMonth()).slice(-2) + '-' + ('0' + started.getDate()).slice(-2) + ' ' + ('0' + started.getHours()).slice(-2) + ':' + ('0' + started.getMinutes()).slice(-2) + ':' + ('0' + started.getSeconds()).slice(-2);
+                            let ended = new Date(logs[l].session_closed);
+                            let ended_str = ended.getFullYear() + '-' + ('0' + ended.getMonth()).slice(-2) + '-' + ('0' + ended.getDate()).slice(-2) + ' ' + ('0' + ended.getHours()).slice(-2) + ':' + ('0' + ended.getMinutes()).slice(-2) + ':' + ('0' + ended.getSeconds()).slice(-2);
+                            let sent_at = new Date(logs[l].messages[m].sent_at);
+                            let sent_at_str = sent_at.getFullYear() + '-' + ('0' + sent_at.getMonth()).slice(-2) + '-' + ('0' + sent_at.getDate()).slice(-2) + ' ' + ('0' + sent_at.getHours()).slice(-2) + ':' + ('0' + sent_at.getMinutes()).slice(-2) + ':' + ('0' + sent_at.getSeconds()).slice(-2);
+
+                            to_return += id + ";" + logs[l]._id + ";" + started_str + ";" + ended_str + ";" + logs[l].messages[m].source + ";" + sent_at_str + ";" + logs[l].messages[m].message + "\r\n";
+                        }
+                    }
+                    
+                    resolve(to_return);
+                });
+            });
+        }           
         
         /**
          * Import a project, replacing the existing one

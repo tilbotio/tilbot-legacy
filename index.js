@@ -25,7 +25,9 @@ requirejs.config({
     ExecutingProjectController: 'shared/controllers/executingproject',
 
     ProjectSchema: 'shared/models/db/project',
-    UserSchema: 'shared/models/db/user'
+    UserSchema: 'shared/models/db/user',
+    LogSchema: 'shared/models/db/log',
+    MessageSchema: 'shared/models/db/message'
   }
 });
 
@@ -418,6 +420,41 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
       });
 
     });
+
+    // API call: get a project's log files
+    app.get('/api/get_logs', async (req, res) => {
+      res.status(200);
+
+      UserApiController.get_user(req.session.username).then(function(user) {
+        if (user !== null) {
+          if (user.role == 1) {
+            ProjectApiController.get_project(req.query.projectid, req.session.username).then(function(response) {
+              console.log(response);
+              if (response == null) {
+                res.send('NOK')
+              }
+              else {
+                ProjectApiController.get_logs(req.query.projectid).then(function(response) {
+                  if (response == null) {
+                    res.send('NOK');
+                  }
+                  else {
+                    res.send(response);
+                  }
+                })
+              }
+            });
+          }
+          else {
+            res.send('NOK');
+          }
+        }
+        else {
+          res.send('NOK');
+        }
+      });
+
+    });    
 
     // API call: import a project, replacing the original
     app.post('/api/import_project', async (req, res) => {

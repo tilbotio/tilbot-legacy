@@ -258,7 +258,7 @@ h1 {
   color: #000000;
 }
 
-.btn_user_inactive, .btn_user_active, .btn_edit, .btn_view.enabled, .btn_pause, .btn_start, .btn_delete {
+.btn_user_inactive, .btn_user_active, .btn_edit, .btn_view.enabled, .btn_pause, .btn_start, .btn_delete, .btn_logs {
   cursor: pointer;
 }
 

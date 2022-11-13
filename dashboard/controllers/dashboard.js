@@ -99,7 +99,8 @@ define(["jquery", "jqueryui"], function($, ui) {
                   <td style="text-align: center"><i class="fa-solid fa-comment btn_view"></i></td>`;
                 }
                   
-                line += `                  <td style="text-align: center; padding-right: 64px"><i class="fa-solid fa-pencil btn_edit"></i></td>
+                line += `                  <td style="text-align: center; padding-right: 64px"><i class="fa-solid fa-file-csv btn_logs"></i></td>
+                <td style="text-align: center; padding-right: 64px"><i class="fa-solid fa-pencil btn_edit"></i></td>
                 <td style="text-align: center"><i class="fa-solid fa-trash btn_delete"></i></td>
                 </tr>`;
                     
@@ -117,6 +118,7 @@ define(["jquery", "jqueryui"], function($, ui) {
               $('.btn_pause').on('click', { self: self, status: 0 }, self.toggle_status);
               $('.btn_view.enabled').on('click', { self: self }, self.view_project);
               $('.btn_delete').on('click', { self: self }, self.delete_project);
+              $('.btn_logs').on('click', { self: self }, self.download_logs);
               //$('.btn_user_active').on('click', { self: self, active: true }, self.set_user_active);              
 
             }
@@ -246,6 +248,24 @@ define(["jquery", "jqueryui"], function($, ui) {
         }
         );            
       }
+    }
+
+    download_logs(e) {
+      $.get('/api/get_logs',
+      {
+        projectid: $(this).closest('tr').attr('data-id')
+      },
+      function(res) {
+        console.log(res);
+        var dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(res);
+        var downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href",     dataStr);
+        downloadAnchorNode.setAttribute("download", "logs.csv");
+        document.body.appendChild(downloadAnchorNode); // required for firefox
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();        
+      }
+      );      
     }
 
     add_user(e) {

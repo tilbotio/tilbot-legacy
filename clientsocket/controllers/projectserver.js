@@ -31,6 +31,7 @@ define("RemoteProjectServer", ["SocketProjectController"], function(SocketProjec
               })
   
               socket.on('disconnect', () => {
+                self.clients[socket.id].log_disconnect();
                 //self.clients[socket.id].session_closed = new Date();
                 //self.clients[socket.id].save();
                 delete self.clients[socket.id];
