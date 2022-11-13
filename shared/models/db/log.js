@@ -1,22 +1,14 @@
-define("LogSchema", ["mongoose"], function(mongoose) {
+define("LogSchema", ["mongoose", "MessageSchema"], function(mongoose, MessageSchema) {
 
     const Schema = mongoose.Schema;
     const ObjectId = mongoose.ObjectId;
 
-    var MessageSchema = new Schema({
-        message: String,
-        source: String,
-        sent_at: {type: Date, default: Date.now}
-    });    
-
     var LogSchema = new Schema({
-        messages: [MessageSchema],
-        current_block_id: Number,
+        messages: [MessageSchema.schema],
         session_started: {type: Date, default: Date.now},
         session_closed: {type: Date, default: Date.now},
-        qualtrics_id: String,
-        user_avatar_id: Number,
-        chatbot_avatar_id: Number
+        project_id: {type: String, required: true},
+        qualtrics_id: String
     });
   
     return mongoose.model('LogSchema', LogSchema);

@@ -1,4 +1,4 @@
-define("SocketProjectController", ["ExecutingProjectController"], function(ExecutingProjectController) {
+define("SocketProjectController", ["ExecutingProjectController", "LogSchema", "MessageSchema"], function(ExecutingProjectController, LogSchema, MessageSchema) {
 
     return class SocketProjectController extends ExecutingProjectController {
   
@@ -9,6 +9,13 @@ define("SocketProjectController", ["ExecutingProjectController"], function(Execu
         this.project = project;
         this.socket_id = socket_id;
         this.current_block_id = this.project.starting_block_id;
+        this.log = new LogSchema();
+        this.log.project_id = project.id;
+        this.log.save((err) => {
+          if (err) {
+            //console.log(err);
+          }
+        });
 
         this._send_current_message();
       }      
@@ -23,6 +30,15 @@ define("SocketProjectController", ["ExecutingProjectController"], function(Execu
           }
 
           this.io.to(this.socket_id).emit('bot message', {type: block.type, content: block.content, params: params});
+          let msg = new MessageSchema();
+          msg.message = block.content;
+          msg.source = 'bot';
+          this.log.messages.push(msg);
+          this.log.save((err) => {
+            if (err) {
+              //console.log(err);
+            }
+          });
         }
         else if (block.type == 'List') {
           params.options = block.items;
@@ -30,6 +46,15 @@ define("SocketProjectController", ["ExecutingProjectController"], function(Execu
           params.number_input = block.number_input;
 
           this.io.to(this.socket_id).emit('bot message', {type: block.type, content: block.content, params: params});
+          let msg = new MessageSchema();
+          msg.message = block.content;
+          msg.source = 'bot';
+          this.log.messages.push(msg);
+          this.log.save((err) => {
+            if (err) {
+              //console.log(err);
+            }
+          });
         }
         else if (block.type == 'Group') {
             this.move_to_group({id: this.current_block_id, model: block});
@@ -38,6 +63,16 @@ define("SocketProjectController", ["ExecutingProjectController"], function(Execu
         }
         else {
             this.io.to(this.socket_id).emit('bot message', {type: block.type, content: block.content, params: params});
+            let msg = new MessageSchema();
+            msg.message = block.content;
+            msg.source = 'bot';
+            this.log.messages.push(msg);
+            this.log.markModified('messages');
+            this.log.save((err) => {
+              if (err) {
+                //console.log(err);
+              }
+            });
         }        
       }
   
@@ -110,6 +145,16 @@ define("SocketProjectController", ["ExecutingProjectController"], function(Execu
       }
       
       receive_message(str) {
+        let msg = new MessageSchema();
+        msg.message = str;
+        msg.source = 'user';
+        this.log.messages.push(msg);
+        this.log.save((err) => {
+          if (err) {
+            //console.log(err);
+          }
+        });
+
         var path = this.get_path();
   
         var block = this.project.blocks[this.current_block_id.toString()];

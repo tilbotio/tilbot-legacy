@@ -24,7 +24,8 @@ requirejs.config({
 
     Project: '../shared/models/project',
     ProjectSchema: '../shared/models/db/project',
-    LogSchema: '../shared/models/db/log'
+    LogSchema: '../shared/models/db/log',
+    MessageSchema: '../shared/models/db/message'
     //UserSchema: 'shared/models/db/user'
   }
 });

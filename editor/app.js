@@ -24,17 +24,17 @@ requirejs.config({
         GroupBlockController: 'editor/controllers/groupblock',
         LineController: 'editor/controllers/line',
         BasicProjectController: 'shared/controllers/basicproject',
-        BasicEditorProjectController: 'shared/controllers/basiceditorproject',
+        BasicEditorProjectController: 'shared/controllers/basiceditorproject',        
         EditorProjectController: 'editor/controllers/editorproject',
 
         // Models
         Project: 'models/project',
         BasicBlock: 'models/basicblock',
-		AutoBlock: "shared/models/blocks/autoblock",
 		GroupBlock: "shared/models/blocks/groupblock",
+		TextBlock: "shared/models/blocks/textblock",
+		AutoBlock: "shared/models/blocks/autoblock",
 		ListBlock: "shared/models/blocks/listblock",
 		MCBlock: "shared/models/blocks/mcblock",
-		TextBlock: "shared/models/blocks/textblock",
 
         BasicConnector: 'models/basicconnector',
         LabeledConnector: 'models/connectors/labeledconnector',
