@@ -1,0 +1,45 @@
+
+<div class="edit_option_fullwidth">
+  <div class="edit_header" id="add_mc" style="cursor: pointer">Set items to choose from</div>
+  <div class="edit_value">
+    <input type="file" id="upload_items" name="upload_items" />
+  </div>
+</div>
+
+<div class="edit_option_fullwidth">
+    <div class="edit_header" id="add_mc" style="cursor: pointer">Currently loaded items</div>
+    <div class="edit_value">
+        {{#each options}}
+        {{this}}<br />
+        {{/each}}
+    </div>
+</div>
+
+<div style="display: none">
+    <textarea id="item_storage" data-field="options" data-conversion="array">
+        {{semicolon options}}
+    </textarea>
+</div>
+
+<script type="text/javascript">
+    $('#upload_items').on('change', function(event) {
+        if (event.target.files[0] !== undefined) {
+        var reader = new FileReader();
+        reader.onload = function(load_event) {
+            let loadedstr = load_event.target.result;
+            loaded = loadedstr.split("\r\n");
+            loaded.sort();
+
+            for (var i in loaded) {
+                loaded[i] = loaded[i].trim().toLowerCase();
+                loaded[i] = loaded[i][0].toUpperCase() + loaded[i].substring(1);
+            }
+
+            console.log(loaded);
+            $('#item_storage').val(loaded.join(';'));
+        };
+
+        reader.readAsText(event.target.files[0]);
+      }
+    });
+</script>

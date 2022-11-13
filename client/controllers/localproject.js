@@ -38,6 +38,10 @@ define("LocalProjectController", ["ExecutingProjectController"], function(Execut
         this.current_block_id = block.starting_block_id;
         this.send_message(block.blocks[block.starting_block_id]);
       }
+      else if (block.type == 'AutoComplete') {
+        params.options = block.options;
+        this.notifyAll('chatbot_message', {type: block.type, content: block.content, params: params});
+      }
       else {
         this.notifyAll('chatbot_message', {type: block.type, content: block.content, params: params});
       }
@@ -116,9 +120,9 @@ define("LocalProjectController", ["ExecutingProjectController"], function(Execut
           }
         }
       }
-      else if (block.type == 'Text' || block.type == 'List') {
+      else if (block.type == 'Text' || block.type == 'List' || block.type == 'AutoComplete') {
         for (var c in block.connectors) {
-          if (block.connectors[c].label == str || block.connectors[c].label == '[else]') {
+          if (block.connectors[c].label == str || block.connectors[c].label == '[else]' || block.connectors[c].label == '[any]') {
             var new_id = block.connectors[c].targets[0];
             this.check_group_exit(new_id, c);
             //this._send_current_message();

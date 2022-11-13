@@ -23,6 +23,7 @@ requirejs.config({
         ExecutingProjectController: 'shared/controllers/executingproject',
         InputMCController: 'client/controllers/input_mc',
         InputListController: 'client/controllers/input_list',
+        InputACController: 'client/controllers/input_ac',
 
         // Models
         Project: 'models/project',
@@ -32,6 +33,7 @@ requirejs.config({
         TextBlock: 'models/blocks/textblock',
         ListBlock: 'models/blocks/listblock',
         GroupBlock: 'models/blocks/groupblock',
+        AutoCompleteBlock: 'models/blocks/autocompleteblock',
         BasicConnector: 'models/basicconnector',
         LabeledConnector: 'models/connectors/labeledconnector',
         GroupConnector: 'models/connectors/groupconnector'

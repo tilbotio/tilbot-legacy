@@ -14,6 +14,12 @@ function($, Handlebars, Observable, view) {
             type: 'AutoBlock'
           },
           {
+            name: 'Autocomplete',
+            description: 'The user can start typing, and this will filter the list of available options.',
+            icon: 'fa-table-list',
+            type: 'AutoCompleteBlock'
+          },
+          {
             name: 'Group (experimental)',
             description: 'Group several other blocks into one.',
             icon: 'fa-layer-group',

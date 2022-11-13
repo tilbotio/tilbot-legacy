@@ -33,6 +33,7 @@ requirejs.config({
 		GroupBlock: "shared/models/blocks/groupblock",
 		TextBlock: "shared/models/blocks/textblock",
 		AutoBlock: "shared/models/blocks/autoblock",
+		AutoCompleteBlock: "shared/models/blocks/autocompleteblock",
 		ListBlock: "shared/models/blocks/listblock",
 		MCBlock: "shared/models/blocks/mcblock",
 

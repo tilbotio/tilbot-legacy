@@ -38,6 +38,9 @@ define("RemoteProjectController", ["BasicProjectController"], function(Executing
         params.text_input = block.text_input;
         params.number_input = block.number_input;
       }
+      else if (block.type == 'AutoComplete') {
+        params.options = block.options;
+      }
 
       this.notifyAll('chatbot_message', {type: block.type, content: block.content, params: params});
     }

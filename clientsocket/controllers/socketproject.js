@@ -68,6 +68,20 @@ define("SocketProjectController", ["ExecutingProjectController", "LogSchema", "M
             this.current_block_id = block.starting_block_id;
             this.send_message(block.blocks[block.starting_block_id]);
         }
+        else if (block.type == 'AutoComplete') {
+          params.options = block.options;
+
+          this.io.to(this.socket_id).emit('bot message', {type: block.type, content: block.content, params: params});
+          let msg = new MessageSchema();
+          msg.message = block.content;
+          msg.source = 'bot';
+          this.log.messages.push(msg);
+          this.log.save((err) => {
+            if (err) {
+              //console.log(err);
+            }
+          });          
+        }
         else {
             this.io.to(this.socket_id).emit('bot message', {type: block.type, content: block.content, params: params});
             let msg = new MessageSchema();
@@ -129,7 +143,10 @@ define("SocketProjectController", ["ExecutingProjectController", "LogSchema", "M
       }*/
 
       _send_current_message() {
-        console.log('sending: ' + this.current_block_id);
+        if (this.current_block_id == undefined) {
+          return;
+        }
+
         var self = this;
         var path = this.get_path();
         var block = this.project;
@@ -187,9 +204,9 @@ define("SocketProjectController", ["ExecutingProjectController", "LogSchema", "M
             }
           }
         }
-        else if (block.type == 'Text' || block.type == 'List') {
+        else if (block.type == 'Text' || block.type == 'List' || block.type == 'AutoComplete') {
           for (var c in block.connectors) {
-            if (block.connectors[c].label == str || block.connectors[c].label == '[else]') {
+            if (block.connectors[c].label == str || block.connectors[c].label == '[else]' || block.connectors[c].label == '[any]') {
               var new_id = block.connectors[c].targets[0];
               this.check_group_exit(new_id, c);
               //this._send_current_message();

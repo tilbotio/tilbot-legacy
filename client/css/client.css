@@ -73,6 +73,18 @@ body {
   align-items: stretch;
 }
 
+#input_ac {
+  display: none;
+  width: calc(100vw - 88px);
+  margin-left: 16px;
+  height: 32px;
+  margin-top: 8px;
+  padding-right: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  float: left;
+}
+
 .input_mc_button {
   background-color: #F6F6F6;
   flex: 1;
@@ -222,6 +234,53 @@ body {
   display: none;
   position: relative;
   /*margin-bottom: 24px;*/
+}
+
+#input_ac input {
+  width: 80%;
+  height: 26px;
+}
+
+.ui-autocomplete {
+  box-sizing: border-box;
+  padding: 8px;
+  background-color: #EAEAEA;
+  border: 2px solid #DDDDDD;
+  position: fixed;
+  bottom: 46px;
+  top: auto !important;
+  max-height: calc(100vh - 200px);
+  overflow-y: scroll;
+  width: 90%;
+}
+
+.ui-autocomplete li {
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+  border-bottom: 1px solid #DDDDDD;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  font-size: 10pt;
+}
+
+.ui-state-active {
+  color: #C42E51;
+  font-weight: bold;
+}
+
+.ui-autocomplete li:last-of-type {
+  border-bottom: none;
+}
+
+.ui-helper-hidden-accessible {
+  display: none;
+}
+
+#ac_options_show {
+  color: #ffffff;
+  margin-left: 8px;
+  cursor: pointer;
 }
 
 

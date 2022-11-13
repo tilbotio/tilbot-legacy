@@ -1,5 +1,5 @@
-define("ClientController", ["jquery", "handlebars", "TextClientController", "TextServerController", "TypingIndicatorController", "InputMCController", "InputListController", "LocalProjectController", "RemoteProjectController", "text!/client/views/client.html"],
-function($, Handlebars, TextClientController, TextServerController, TypingIndicatorController, InputMCController, InputListController, LocalProjectController, RemoteProjectController, view) {
+define("ClientController", ["jquery", "handlebars", "TextClientController", "TextServerController", "TypingIndicatorController", "InputMCController", "InputListController", "InputACController", "LocalProjectController", "RemoteProjectController", "text!/client/views/client.html"],
+function($, Handlebars, TextClientController, TextServerController, TypingIndicatorController, InputMCController, InputListController, InputACController, LocalProjectController, RemoteProjectController, view) {
 
   return class ClientController {
 
@@ -21,6 +21,7 @@ function($, Handlebars, TextClientController, TextServerController, TypingIndica
             self.inputMC = new InputMCController();
             self.inputMC.subscribe(self);
             self.inputList = new InputListController();
+            self.inputAC = new InputACController();
 
             if (document.referrer == '' || !document.referrer.includes('/edit/')) {
               var urlparts = document.URL.split('/');
@@ -101,6 +102,9 @@ function($, Handlebars, TextClientController, TextServerController, TypingIndica
         }
         msg += event.data.self.inputList.selected;
       }
+      else if (event.data.self.current_type == 'AutoComplete') {
+        msg = $('#ac_options').val();
+      }
       else {
         var msg = $("#input_field").html().replace(/<div>/gi,'<br>').replace(/<\/div>/gi,'').replace('<br><br><br>', '<br><br>');
       }
@@ -168,6 +172,7 @@ function($, Handlebars, TextClientController, TextServerController, TypingIndica
       $('#input_field').hide();
       this.inputMC.hide();
       this.inputList.hide();
+      this.inputAC.hide();
     }
 
     handle_message(type, content, params) {
@@ -205,6 +210,11 @@ function($, Handlebars, TextClientController, TextServerController, TypingIndica
         console.log(params.options);
         this.inputList.redraw(params);
         this.inputList.show();
+      }
+      else if (type == 'AutoComplete') {
+        console.log(params);
+        this.inputAC.redraw(params.options);
+        this.inputAC.show();
       }
       else {
         $('#input_field').show();
