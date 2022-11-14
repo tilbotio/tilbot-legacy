@@ -99,7 +99,7 @@ define(["jquery", "jqueryui"], function($, ui) {
                   <td style="text-align: center"><i class="fa-solid fa-comment btn_view"></i></td>`;
                 }
                   
-                line += `                  <td style="text-align: center; padding-right: 64px"><i class="fa-solid fa-file-csv btn_logs"></i></td>
+                line += `                  <td style="text-align: center; padding-right: 64px"><i class="fa-solid fa-file-csv btn_logs"></i> <i class="fa-solid fa-trash btn_del_logs"></i></td>
                 <td style="text-align: center; padding-right: 64px"><i class="fa-solid fa-pencil btn_edit"></i></td>
                 <td style="text-align: center"><i class="fa-solid fa-trash btn_delete"></i></td>
                 </tr>`;
@@ -119,6 +119,8 @@ define(["jquery", "jqueryui"], function($, ui) {
               $('.btn_view.enabled').on('click', { self: self }, self.view_project);
               $('.btn_delete').on('click', { self: self }, self.delete_project);
               $('.btn_logs').on('click', { self: self }, self.download_logs);
+              $('.btn_del_logs').on('click', { self: self }, self.delete_logs);
+        
               //$('.btn_user_active').on('click', { self: self, active: true }, self.set_user_active);              
 
             }
@@ -267,6 +269,21 @@ define(["jquery", "jqueryui"], function($, ui) {
       }
       );      
     }
+
+    delete_logs(e) {
+      if (confirm("Are you sure you wish to delete the logs for project \"" + $(this).closest('tr').children('td:first').text() + "\"?")) {
+        // Actually delete
+        $.post('/api/delete_logs',
+        {
+          projectid: $(this).closest('tr').attr('data-id')
+        },
+        function(res) {
+          console.log(res);
+        }
+        );            
+      }
+    }
+
 
     add_user(e) {
       $('#new_user_error').hide();

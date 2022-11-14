@@ -52,7 +52,21 @@ define("ProjectApiController", ["ProjectSchema", "Project", "LogSchema", "crypto
                     resolve(to_return);
                 });
             });
-        }           
+        }         
+        
+        /**
+         * Retrieve a project's logs
+         *
+         * @param {string} id - The project id to search for.
+         * @return {boolean} True if success, false if failed.
+         */
+         static delete_logs(id) {
+            return new Promise(resolve => {
+                LogSchema.deleteMany({ project_id: id }).then(function() {
+                    resolve(true);
+                });
+            });
+        }          
         
         /**
          * Import a project, replacing the existing one

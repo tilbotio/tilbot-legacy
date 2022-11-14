@@ -460,6 +460,36 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
 
     });    
 
+    // API call: delete a project's log files
+    app.post('/api/delete_logs', async (req, res) => {
+      res.status(200);
+
+      UserApiController.get_user(req.session.username).then(function(user) {
+        if (user !== null) {
+          if (user.role == 1) {
+            ProjectApiController.get_project(req.body.projectid, req.session.username).then(function(response) {              
+              if (response == null) {
+                res.send('NOK')
+              }
+              else {
+                ProjectApiController.delete_logs(req.body.projectid).then(function(response) {
+                  console.log('deleted logs: ' + response);
+                    res.send(response);
+                })
+              }
+            });
+          }
+          else {
+            res.send('NOK');
+          }
+        }
+        else {
+          res.send('NOK');
+        }
+      });
+
+    });       
+
     // API call: import a project, replacing the original
     app.post('/api/import_project', async (req, res) => {
       res.status(200);
