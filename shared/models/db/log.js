@@ -8,7 +8,7 @@ define("LogSchema", ["mongoose", "MessageSchema"], function(mongoose, MessageSch
         session_started: {type: Date, default: Date.now},
         session_closed: {type: Date, default: Date.now},
         project_id: {type: String, required: true},
-        qualtrics_id: String
+        qualtrics_id: {type: String, default: ""}
     });
   
     return mongoose.model('LogSchema', LogSchema);
