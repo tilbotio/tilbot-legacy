@@ -132,7 +132,7 @@ function($, Handlebars, TextClientController, TextServerController, TypingIndica
         event.data.self.project_received(event);
       } 
       catch (e) {
-        event.data.self.projectcontroller.send_qualtrics_id(json_msg.qualtrics_id);       
+        event.data.self.projectcontroller.send_qualtrics_id(msg);       
       }
     }
 
