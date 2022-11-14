@@ -127,14 +127,12 @@ function($, Handlebars, TextClientController, TextServerController, TypingIndica
       let msg = event.originalEvent.data;
 
       // This could be a project to load, or a Qualtrics ID
-      let json_msg = JSON.parse(msg);
-
-      if (json_msg.qualtrics_id !== undefined) {
-        event.data.self.projectcontroller.send_qualtrics_id(json_msg.qualtrics_id);
-      }
-
-      else {
+      try {
+        JSON.parse(msg);
         event.data.self.project_received(event);
+      } 
+      catch (e) {
+        event.data.self.projectcontroller.send_qualtrics_id(json_msg.qualtrics_id);       
       }
     }
 
