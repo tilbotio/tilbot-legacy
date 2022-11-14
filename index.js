@@ -31,7 +31,7 @@ requirejs.config({
   }
 });
 
-requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'UserApiController', 'ProjectApiController', 'ServerProjectController', 'jquery-deferred'], function(process, fs, net, http, https, path, child_process, express, session, mongodbsession, bodyparser, socket, mongoose, UserApiController, ProjectApiController, ServerProjectController, $) {
+requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'express', 'express-session', 'express-mongodb-session', 'body-parser', 'socket.io', 'mongoose', 'multer', 'UserApiController', 'ProjectApiController', 'ServerProjectController', 'jquery-deferred'], function(process, fs, net, http, https, path, child_process, express, session, mongodbsession, bodyparser, socket, mongoose, multer, UserApiController, ProjectApiController, ServerProjectController, $) {
   var use_https = false;
 
   if (process.env.USE_HTTPS != undefined) {
@@ -95,14 +95,18 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
 
   //console.log(requirejs.s.contexts._.config);
 
+  if (!fs.existsSync('uploaded')) {
+    fs.mkdirSync('uploaded');
+  }  
+
   // Keep track of running external processes for bots.
   this.running_bots = {};
 
   // Create the server
   var app = express();
 
-  // Needed for setting/maintaining sessions for the dashboard
-  app.use(bodyparser.urlencoded({ extended: true }));
+  // Needed for setting/maintaining sessions for the dashboard, and importing larger project files
+  app.use(bodyparser.urlencoded({ extended: true, limit: '50mb' }));
 
   // Set up the MongoDB connection
   var dbPath = 'mongodb://localhost/tilbot';
@@ -559,6 +563,73 @@ requirejs(['process', 'fs', 'net', 'http', 'https', 'path', 'child_process', 'ex
       });
     });
 
+    /**
+     * API call: change a project's status (active/inactive)
+     */
+    // Preparing multer
+    const storage = multer.diskStorage({
+      destination: function (req, file, cb) {
+        if (!fs.existsSync('uploaded/' + req.headers.projectid)) {
+          fs.mkdirSync('uploaded/' + req.headers.projectid);
+        }
+
+        cb(null, 'uploaded/' + req.headers.projectid + '/');
+      },
+      filename: function (req, file, cb) {
+        cb(null, 'avatar.' + file.originalname.split('.')[1]);
+      }
+    });
+    
+    const upload = multer({ 
+      storage: storage,
+      fileFilter: function(req, file, cb) {
+       // Set the filetypes, it is optional
+       var filetypes = /jpeg|jpg|png|svg/;
+       var mimetype = filetypes.test(file.mimetype);
+ 
+       var extname = filetypes.test(path.extname(
+                   file.originalname).toLowerCase());
+       
+       if (mimetype && extname) {
+           return cb(null, true);
+       }
+     
+       cb("Error: File upload only supports the "
+               + "following filetypes - " + filetypes);        
+      }
+    });
+
+     app.post('/api/set_project_settings', upload.single('avatar_image'), async (req, res) => {
+      res.status(200);
+
+      UserApiController.get_user(req.session.username).then(function(user) {
+        if (user !== null) {
+          if (user.role == 1) {
+            ProjectApiController.get_project(req.body.projectid, req.session.username).then(function(response) {
+              if (response != null) {
+                response.bot_name = req.body.bot_name; 
+
+                if (req.file !== undefined) {
+                  response.avatar_image = req.file.destination + req.file.filename;
+                }
+
+                response.save();
+                res.send({status: 'OK'});
+              }
+              else {
+                res.send({status: 'NOK'});
+              }
+            });
+          }
+          else {
+            res.send({status: 'NOK'});
+          }
+        }
+        else {
+          res.send({status: 'USER_NOT_FOUND'});
+        }
+      });
+    });
 
     this.start_bot = function(projectid) {
       console.log('starting ' + projectid);

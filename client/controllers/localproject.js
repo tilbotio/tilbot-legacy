@@ -8,6 +8,7 @@ define("LocalProjectController", ["ExecutingProjectController"], function(Execut
       var self = this;
 
       $.when(this.load_project(JSON.parse(json_str)).then(function() {
+        self.notifyAll('project_loaded');
 
         self.current_block_id = self.project.starting_block_id;
 

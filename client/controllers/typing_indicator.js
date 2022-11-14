@@ -26,6 +26,10 @@ function($, Handlebars, view) {
       this.dom.hide();
     }
 
+    set_avatar_image(avatar_image) {
+      $('#typing_avatar').attr('src', avatar_image);
+    }
+
   }
 
 });

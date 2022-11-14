@@ -7,6 +7,8 @@ define("Project", [], function() {
         this.starting_block_id = -1;
         this.canvas_width = canvas_width;
         this.canvas_height = canvas_height;
+        this.bot_name = 'Tilbot';
+        this.avatar_image = '/client/img/default_profile.svg';
       }
 
       toJSON() {
@@ -16,7 +18,9 @@ define("Project", [], function() {
           blocks: {},
           starting_block_id: this.starting_block_id,
           canvas_width: this.canvas_width,
-          canvas_height: this.canvas_height
+          canvas_height: this.canvas_height,
+          bot_name: this.bot_name,
+          avatar_image: this.avatar_image
         };
 
         for (const [key, value] of Object.entries(this.blocks)) {
@@ -37,6 +41,8 @@ define("Project", [], function() {
         project.name = json.name;
         project.current_block_id = json.current_block_id;
         project.starting_block_id = json.starting_block_id;
+        project.bot_name = json.bot_name;
+        project.avatar_image = json.avatar_image;
 
         project.blocks = {};
 

@@ -303,7 +303,7 @@ body {
     display: none;
 }
 
-#new_block_popup, #edit_block_popup_container {
+#new_block_popup, #edit_block_popup_container, #settings_popup {
   position: fixed;
   width: 65%;
   left: 5%;
@@ -313,6 +313,19 @@ body {
   box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
   z-index: 1003;
   display: none;
+}
+
+#settings_popup img {
+  width: 44px;
+  margin: 16px;
+}
+
+#settings_popup input {
+  margin: 16px;
+}
+
+#settings_form {
+  padding: 16px;
 }
 
 #edit_block_popup_container {
@@ -521,7 +534,7 @@ body {
   float: right;
 }
 
-#btn_run_all, #btn_run_selected, #btn_export, #btn_import {
+#btn_run_all, #btn_run_selected, #btn_export, #btn_import, #btn_settings {
   float: left;
   margin-top: 20px;
   cursor: pointer;
@@ -560,7 +573,7 @@ body {
   margin-left: 8px;
 }
 
-#btn_export {
+#btn_export, #btn_settings {
   margin-right: 20px;
 }
 
@@ -573,7 +586,7 @@ body {
   margin-right: 8px;
 }
 
-#btn_run_all i, #btn_run_selected i, #btn_export i, #btn_import i {
+#btn_run_all i, #btn_run_selected i, #btn_export i, #btn_import i, #btn_settings i {
   font-size: 16pt;
   float: left;
   margin-top: -1px;

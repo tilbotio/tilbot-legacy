@@ -1,0 +1,14 @@
+<div id="settings_popup">
+    <div class="popup_title">Settings</div>
+    <img src="{{avatar_image}}" />
+    <form id="settings_form" action="/api/set_project_settings" enctype="multipart/form-data" method="POST">
+        Avatar image: <input type="file" id="avatar_image" name="avatar_image" /><br />
+        Bot name: <input type="text" id="bot_name" name="bot_name" value="{{bot_name}}" /><br />
+
+        <input type="hidden" id="projectid" name="projectid" value="{{project_id}}" />
+
+    <div class="popup_button_container">
+      <div class="button" id="btn_settings_confirm">Save settings</div>
+    </div>
+  </div>
+  

@@ -26,6 +26,7 @@ requirejs.config({
         BasicProjectController: 'shared/controllers/basicproject',
         BasicEditorProjectController: 'shared/controllers/basiceditorproject',        
         EditorProjectController: 'editor/controllers/editorproject',
+        SettingsController: 'editor/controllers/settings',
 
         // Models
         Project: 'models/project',

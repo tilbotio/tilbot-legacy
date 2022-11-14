@@ -17,6 +17,7 @@ define("SocketProjectController", ["ExecutingProjectController", "LogSchema", "M
           }
         });
 
+        this.send_project_info();
         this._send_current_message();
       }
       
@@ -25,6 +26,10 @@ define("SocketProjectController", ["ExecutingProjectController", "LogSchema", "M
         this.log.save((err) => {
 
         });
+      }
+
+      send_project_info() {
+        this.io.to(this.socket_id).emit('init', {avatar_image: this.project.avatar_image, bot_name: this.project.bot_name});
       }
       
       send_message(block) {

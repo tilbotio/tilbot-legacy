@@ -16,7 +16,9 @@ define("ProjectSchema", ["mongoose"], function(mongoose) {
     canvas_height: {type: Number, default: -1},
     user_id: {type: String, required: true},
     socket: {type: Number},
-    active: {type: Boolean, default: true}
+    active: {type: Boolean, default: true},
+    bot_name: {type: String, default: 'Tilbot'},
+    avatar_image: {type: String, default: 'client/img/default_profile.svg'}
   }, {minimize: false});
 
   ProjectSchema.statics.fromModel = function(model) {
@@ -28,6 +30,8 @@ define("ProjectSchema", ["mongoose"], function(mongoose) {
     schema.canvas_width = model.canvas_width;
     schema.canvas_height = model.canvas_height;
     schema.blocks = {};
+    schema.bot_name = model.bot_name;
+    schema.avatar_image = model.avatar_image;
 
     for (const [key, value] of Object.entries(model.blocks)) {
       //schema.blocks[key] = JSON.stringify(value.toJSON());

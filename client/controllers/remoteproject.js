@@ -11,13 +11,18 @@ define("RemoteProjectController", ["BasicProjectController"], function(Executing
       require([document.URL.substring(0, document.URL.length-33) + ':' + port + '/socket.io/socket.io.js'], function(io) {
         self.socket = io(document.URL.substring(0, document.URL.length-33) + ':' + port);
 
-        self.socket.on('bot message', self.message_received.bind(self));  
+        self.socket.on('bot message', self.message_received.bind(self)); 
+        self.socket.on('init', self.init.bind(self)); 
 
         // Broadcast message that everything is loaded in case Tilbot is running in an iFrame.
         if (parent !== window) {
           parent.postMessage('tilbot loaded', '*');
         }        
       });
+    }
+
+    init(params) {
+      this.notifyAll('init', params);
     }
 
     message_received(params) {

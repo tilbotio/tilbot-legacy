@@ -162,10 +162,28 @@ function($, Handlebars, TextClientController, TextServerController, TypingIndica
 
       switch(message) {
         case 'chatbot_message': this.handle_message(params.type, params.content, params.params); break;
-        case 'option_selected': this.post_message({data: {self: this}});
+        case 'init': this.init(params); break;
+        case 'option_selected': this.post_message({data: {self: this}}); break;
+        case 'project_loaded': this.project_loaded({data: {self: this}});
         default: ;
       }
 
+    }
+
+    init(params) {
+      $('#name').text(params.bot_name);
+      $('#profile_img_src').attr('src', params.avatar_image);
+      this.typingIndicator.set_avatar_image(params.avatar_image);
+      this.avatar_image = params.avatar_image;
+      this.bot_name = params.bot_name;
+    }
+
+    project_loaded(event) {
+      $('#name').text(event.data.self.projectcontroller.project.bot_name);
+      $('#profile_img_src').attr('src', event.data.self.projectcontroller.project.avatar_image);
+      this.typingIndicator.set_avatar_image(event.data.self.projectcontroller.project.avatar_image);
+      this.avatar_image = event.data.self.projectcontroller.project.avatar_image;
+      this.bot_name = event.data.self.projectcontroller.project.bot_name;
     }
 
     hide_all_inputs() {
@@ -194,7 +212,7 @@ function($, Handlebars, TextClientController, TextServerController, TypingIndica
       this.current_type = type;
       this.current_params = params;
 
-      new TextServerController({ msg: content, background_color: this.background_client});
+      new TextServerController({ msg: content, background_color: this.background_client, avatar_image: this.avatar_image});
       setTimeout(function() { $("body").scrollTop($("body")[0].scrollHeight); }, 10);
 
 

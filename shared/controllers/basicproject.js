@@ -54,5 +54,12 @@ function(Project, Observable) {
     move_to_root() {
       this.selected_group_blocks = [];
     }
+
+    get_settings() {
+      return {
+        bot_name: this.project.bot_name,
+        avatar_image: this.project.avatar_image
+      }
+    }
   }
 });

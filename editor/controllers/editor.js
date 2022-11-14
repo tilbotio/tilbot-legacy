@@ -1,5 +1,5 @@
-define("EditorController", ["jquery", "handlebars", "Util", "StartingPointController", "EndPointController", "MinimapController", "NewBlockController", "EditBlockController", "BlockController", "GroupBlockController", "EditorProjectController", "text!/editor/views/editor.html"],
-function($, Handlebars, Util, StartingPointController, EndPointController, MinimapController, NewBlockController, EditBlockController, BlockController, GroupBlockController, ProjectController, view) {
+define("EditorController", ["jquery", "handlebars", "Util", "StartingPointController", "EndPointController", "MinimapController", "NewBlockController", "EditBlockController", "SettingsController", "BlockController", "GroupBlockController", "EditorProjectController", "text!/editor/views/editor.html"],
+function($, Handlebars, Util, StartingPointController, EndPointController, MinimapController, NewBlockController, EditBlockController, SettingsController, BlockController, GroupBlockController, ProjectController, view) {
 
   return class EditorController {
 
@@ -33,6 +33,8 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
               self.editBlockController.subscribe(self);
               self.newBlockController = new NewBlockController();
               self.newBlockController.subscribe(self);
+              self.settingsController = new SettingsController();
+              self.settingsController.subscribe(self);
   
               self.startingPointController = new StartingPointController();
               self.startingPointController.subscribe(self);
@@ -63,6 +65,7 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
       $('#overlay').on('click', { self: this }, this.close_overlay);
       $('#editor_panel').on('click', { self: this }, this.editor_clicked);
       $('#editor_container').on('scroll', { self: this }, this.panel_scrolling);
+      $('#btn_settings').on('click', { self: this }, this.show_settings);
       $('#btn_export').on('click', { self: this }, this.export_project);
       $('#btn_import').on('click', { self: this }, this.import_project);
       $('#jsonfileinput').on('change', { self: this}, this.import_project_file);
@@ -101,6 +104,7 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
         case 'move_to_group': this.move_to_group(params); break;
         case 'endpoint_line_created': this.endpoint_line_created(params.block_id, params.connector_id, params.description); break;
         case 'endpoint_line_deleted': this.endpoint_line_deleted(params.block_id, params.connector_id); break;
+        case 'update_settings': this.update_settings(params); break;
         default: ;
       }
 
@@ -108,6 +112,25 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
 
     block_changed(params) {
       this.projectController.block_changed(params.id, params.model);
+    }
+
+    show_settings(event) {
+      $('#overlay').show();
+      let settings = event.data.self.projectController.get_settings();
+      settings.project_id = event.data.self.project_id;
+      event.data.self.settingsController.show(settings);
+    }
+
+    update_settings(params) {
+      console.log(params);
+      this.projectController.project.bot_name = params.bot_name;
+
+      /*if (params.avatar_image !== undefined) {
+        this.projectController.project.avatar_image = params.avatar_image;
+      }*/
+
+      this.close_overlay();
+      
     }
 
     show_popup_new_block(event) {
@@ -129,6 +152,7 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
 
       self.newBlockController.hide();
       self.editBlockController.hide();
+      self.settingsController.hide();
 
       $('#overlay').hide();
     }
@@ -403,6 +427,7 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
         self.no_selection();
 
         if (send_to_server) {
+          self.projectController.project.avatar_image = 'client/img/default_profile.svg';
 
           // Upload the imported project to the database
           $.post('/api/import_project',
