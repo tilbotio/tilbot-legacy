@@ -19,7 +19,6 @@ services:
       - ./docker_scripts/:/docker-entrypoint-initdb.d/      
 
   node:
-    user: "node"
     working_dir: /home/node/app
     volumes:
       - ./:/home/node/app

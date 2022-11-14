@@ -45,7 +45,7 @@ define("ProjectApiController", ["ProjectSchema", "Project", "LogSchema", "crypto
                             let sent_at = new Date(logs[l].messages[m].sent_at);
                             let sent_at_str = sent_at.getFullYear() + '-' + ('0' + sent_at.getMonth()).slice(-2) + '-' + ('0' + sent_at.getDate()).slice(-2) + ' ' + ('0' + sent_at.getHours()).slice(-2) + ':' + ('0' + sent_at.getMinutes()).slice(-2) + ':' + ('0' + sent_at.getSeconds()).slice(-2);
 
-                            to_return += id + ";" + logs[l]._id + ";" + started_str + ";" + ended_str + ";" + logs[l].messages[m].source + ";" + sent_at_str + ";" + logs[l].messages[m].message + "\r\n";
+                            to_return += id + ";" + logs[l]._id + ";" + started_str + ";" + ended_str + ";" + logs[l].messages[m].source + ";" + sent_at_str + ";" + logs[l].messages[m].message.replace(/(\r\n|\n|\r)/gm, " "); + "\r\n";
                         }
                     }
                     
