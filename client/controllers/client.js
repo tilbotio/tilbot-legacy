@@ -202,7 +202,7 @@ function($, Handlebars, TextClientController, TextServerController, TypingIndica
         self.typingIndicator.hide();
         self.send_message(type, content, params);
         self.projectcontroller.message_sent_event();
-      }, content.length / 15 * 1000);
+      }, 2000); // content.length / 15 * 1000);
     }
 
     send_message(type, content, params) {

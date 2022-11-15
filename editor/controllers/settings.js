@@ -62,9 +62,11 @@ function($, Handlebars, Observable, view) {
     }
 
     hide() {
-        this.dom.hide( "scale", 250, function() {
-            // Animation complete.
-        });
+        if (this.dom !== undefined) {
+            this.dom.hide( "scale", 250, function() {
+                // Animation complete.
+            });    
+        }
     }
 
     save_settings(event) {

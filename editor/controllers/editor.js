@@ -437,6 +437,7 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
           },
           function(res) {
             console.log(res);
+            self.projectController.reload_project();
           });          
         }
       });

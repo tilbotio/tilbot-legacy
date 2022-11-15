@@ -5,6 +5,8 @@ function(BasicEditorProjectController) {
     constructor(project_id) {
         super();
 
+        this.project_id = project_id;
+
         var self = this;
 
         require([document.URL.substring(0, document.URL.length-38) + '/socket.io/socket.io.js'], function(io) {
@@ -13,6 +15,10 @@ function(BasicEditorProjectController) {
             self.socket.emit('cmd', 'get_project_from_id', project_id);
             //self.socket.on('bot message', self.message_received.bind(self));  
         });        
+    }
+
+    reload_project() {
+      this.socket.emit('cmd', 'get_project_from_id', this.project_id);
     }
 
     set_canvas_size(width, height, path = []) {
