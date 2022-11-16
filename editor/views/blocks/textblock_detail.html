@@ -1,0 +1,39 @@
+<div id="num_connectors" style="display: none">{{connectors.length}}</div>
+
+<div id="edit_option_container">
+    {{#each connectors}}
+    <div class="edit_option">
+    <div class="edit_header">Keyword(s) to detect {{@index}}</div>
+    <div class="edit_value">
+        <input type="text" id="edit_connector_{{@index}}" data-edit-connector-id="{{@index}}" data-remove="false" data-edit-connector-field="label" value="{{this.label}}"></input>
+        <span class="del_connector"> x</span>
+    </div>
+    </div>
+    {{/each}}
+</div>
+
+<div class="edit_option_fullwidth">
+  <div class="edit_header" id="add_mc" style="cursor: pointer">+ Add new keyword(s)</div>
+  <div class="edit_value">
+  </div>
+</div>
+
+<script type="text/javascript">
+  var num_connectors = parseInt($('#num_connectors').text());
+
+  $('#add_mc').on('click', function() {
+    $(`<div class="edit_option">
+      <div class="edit_header">Keyword(s) to detect ` + (num_connectors) + `</div>
+      <div class="edit_value">
+        <input type="text" id="edit_connector_` + num_connectors + `" data-edit-connector-id="` + num_connectors + `" data-remove="false" data-edit-connector-field="label" value=""></input>
+        <span class="del_connector"> x</span>        
+      </div>
+    </div>`).insertBefore($(this).parent());
+    num_connectors += 1;
+  });
+
+  $('.del_connector').on('click', function() {
+    $(this).parent().children('input').attr('data-remove', true);
+    $(this).parent().parent().hide();
+  });  
+</script>

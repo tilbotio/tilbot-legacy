@@ -97,6 +97,7 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
         case 'starting_line_created': this.starting_line_created(params.target); break;
         case 'starting_line_deleted': this.starting_line_deleted(); break;
         case 'popup_closed': this.close_overlay(); break;
+        case 'editor_closed': this.editor_closed(params); break;
         case 'new_block_added': this.add_new_block(params.block); break;
         case 'update_minimap': this.minimapController.update_minimap(); break;
         case 'scroll_editor': this.scroll_editor(params); break;
@@ -112,6 +113,20 @@ function($, Handlebars, Util, StartingPointController, EndPointController, Minim
 
     block_changed(params) {
       this.projectController.block_changed(params.id, params.model);
+    }
+
+    editor_closed(params) {
+      this.blockControllers[params.id].clear_lines();      
+
+      // Rerender lines
+      let block = this.blockControllers[params.id].model;
+      for (const [ckey, cvalue] of Object.entries(block.connectors)) {
+        for (const [tkey, tvalue] of Object.entries(cvalue.targets)) {
+            this.blockControllers[params.id].draw_full_line(ckey, tvalue, this.blockControllers[tvalue.toString()].model.x, this.blockControllers[tvalue.toString()].model.y);
+        }
+      }
+
+      this.close_overlay();
     }
 
     show_settings(event) {

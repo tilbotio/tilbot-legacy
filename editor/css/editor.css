@@ -603,6 +603,14 @@ body {
  overflow: hidden;
 }
 
+.del_connector {
+  cursor: pointer;
+}
+
+#edit_option_container .edit_option:first-child {
+  display: none;
+}
+
 
 @media only screen and (max-width: 1024px) {
   #edit_block_popup_container {

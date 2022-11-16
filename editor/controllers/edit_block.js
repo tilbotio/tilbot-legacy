@@ -112,14 +112,19 @@ function($, Handlebars, Util, Observable, view, subview) {
         event.data.self.current_block.connectors[$(this).attr('data-edit-connector-id')][$(this).attr('data-edit-connector-field')] = $(this).val();
       });
 
-      // @TODO: delete removed connectors (do this after adding new ones to avoid ID mix-up)
+      // delete removed connectors (do this after adding new ones to avoid ID mix-up)
+      $('[data-edit-connector-id]').each(function() {
+        if ($(this).attr('data-remove') == 'true') {
+          event.data.self.current_block.connectors.splice($(this).attr('data-edit-connector-id'), 1);
+        }
+      })
 
       event.data.self.current_block.setName($('#edit_popup_title').text());
 
       // Perhaps a bit inefficient, but we assume if the save button is pressed that something has changed and therefore we update this block on the server.
       event.data.self.notifyAll("block_changed", {id: event.data.self.current_id, model: event.data.self.current_block});
 
-      event.data.self.notifyAll("popup_closed");
+      event.data.self.notifyAll("editor_closed", {id: event.data.self.current_id});
     }
 
   }

@@ -153,6 +153,13 @@ function($, Handlebars, Observable, LineController, view) {
       this.notifyAll('block_deleted');
     }
 
+    clear_lines() {
+      for (var i = 0; i < this.lineControllers.length; i++) {
+        $(this.lineControllers[i].dom).remove();
+        $(this.lineControllers[i].dom_clickable).remove();
+      }
+    }
+
     // Draw a line programmatically (e.g., after loading existing project)
     draw_full_line(connector_id, target_id, x2, y2) {
       var block_pos = this.dom.position();

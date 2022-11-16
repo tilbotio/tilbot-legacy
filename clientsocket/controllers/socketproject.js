@@ -17,6 +17,8 @@ define("SocketProjectController", ["ExecutingProjectController", "LogSchema", "M
           }
         });
 
+        this.message_processed = false;
+
         this.send_project_info();
         this._send_current_message();
       }
@@ -33,6 +35,8 @@ define("SocketProjectController", ["ExecutingProjectController", "LogSchema", "M
       }
       
       send_message(block) {
+        this.message_processed = false;
+
         var params = {};
   
         if (block.type == 'MC') {
@@ -103,6 +107,7 @@ define("SocketProjectController", ["ExecutingProjectController", "LogSchema", "M
       }
   
       message_sent_event() {
+        this.message_processed = true;
         var path = this.get_path();
   
         if (path.length == 0) {
@@ -184,6 +189,10 @@ define("SocketProjectController", ["ExecutingProjectController", "LogSchema", "M
           }
         });
 
+        if (this.current_block_id == undefined || !this.message_processed) {
+          return;
+        }
+
         var path = this.get_path();
   
         var block = this.project.blocks[this.current_block_id.toString()];
@@ -211,10 +220,18 @@ define("SocketProjectController", ["ExecutingProjectController", "LogSchema", "M
         }
         else if (block.type == 'Text' || block.type == 'List' || block.type == 'AutoComplete') {
           for (var c in block.connectors) {
-            if (block.connectors[c].label == str || block.connectors[c].label == '[else]' || block.connectors[c].label == '[any]') {
+            if (str.toLowerCase().includes(block.connectors[c].label.toLowerCase()) || block.connectors[c].label == '[any]') {
               var new_id = block.connectors[c].targets[0];
               this.check_group_exit(new_id, c);
               //this._send_current_message();
+              return;
+            }
+          }
+
+          for (var c in block.connectors) {
+            if (block.connectors[c].label == '[else]') {
+              var new_id = block.connectors[c].targets[0];
+              this.check_group_exit(new_id, c);
             }
           }
         }

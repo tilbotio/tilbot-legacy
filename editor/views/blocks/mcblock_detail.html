@@ -5,6 +5,7 @@
   <div class="edit_header">Option {{inc @index}}</div>
   <div class="edit_value">
     <input type="text" id="edit_connector_{{@index}}" data-edit-connector-id="{{@index}}" data-edit-connector-field="label" value="{{this.label}}"></input>
+    <span class="del_connector"> x</span> 
   </div>
 </div>
 {{/each}}
@@ -23,8 +24,15 @@
       <div class="edit_header">Option ` + (num_connectors+1) + `</div>
       <div class="edit_value">
         <input type="text" id="edit_connector_` + num_connectors + `" data-edit-connector-id="` + num_connectors + `" data-edit-connector-field="label" value=""></input>
+        <span class="del_connector"> x</span> 
       </div>
     </div>`).insertBefore($(this).parent());
     num_connectors += 1;
   });
+
+  $('.del_connector').on('click', function() {
+    $(this).parent().children('input').attr('data-remove', true);
+    $(this).parent().parent().hide();
+  });  
+
 </script>

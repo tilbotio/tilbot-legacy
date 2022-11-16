@@ -123,10 +123,18 @@ define("LocalProjectController", ["ExecutingProjectController"], function(Execut
       }
       else if (block.type == 'Text' || block.type == 'List' || block.type == 'AutoComplete') {
         for (var c in block.connectors) {
-          if (block.connectors[c].label == str || block.connectors[c].label == '[else]' || block.connectors[c].label == '[any]') {
+          if (str.toLowerCase().includes(block.connectors[c].label.toLowerCase()) || block.connectors[c].label == '[any]') {
             var new_id = block.connectors[c].targets[0];
             this.check_group_exit(new_id, c);
+            return;
             //this._send_current_message();
+          }
+        }
+
+        for (var c in block.connectors) {
+          if (block.connectors[c].label == '[else]') {
+            var new_id = block.connectors[c].targets[0];
+            this.check_group_exit(new_id, c);
           }
         }
       }
