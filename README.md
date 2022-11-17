@@ -24,7 +24,7 @@ If you want to use the docker-compose version of this project, you will need to 
     MONGO_PASSWORD=pass
     USE_HTTPS=0
 
-Note: Sometimes git changes the line endings in the MongoDB initialization script, resulting in the Tilbot Docker throwing a MongoError (Authentication failed). This happened for me in Windows, if it does changing the following git setting (in a command prompt with administrator rights) should fix it:
+Also make sure that the MongoDB initialization script can be executed (set the correct rights using chmod 755). Note: Sometimes git changes the line endings in the MongoDB initialization script, resulting in the Tilbot Docker throwing a MongoError (Authentication failed). This happened for me in Windows, if it does changing the following git setting (in a command prompt with administrator rights) should fix it:
     
     git config --system core.autocrlf false
 

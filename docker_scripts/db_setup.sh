@@ -2,7 +2,7 @@
 
 echo 'Creating application user and db'
 
-mongo ${MONGO_INITDB_DATABASE} \
+mongosh ${MONGO_INITDB_DATABASE} \
         --host localhost \
         --port ${MONGO_PORT} \
         -u ${MONGO_INITDB_ROOT_USERNAME} \
