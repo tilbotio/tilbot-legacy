@@ -25,7 +25,10 @@ function($, Handlebars, Observable, view) {
     button_clicked(event) {
       var text = $(event.target).text();
 
-      if (event.data.self.selected == text) {
+      event.data.self.selected = text;
+      event.data.self.notifyAll('option_selected');
+
+      /*if (event.data.self.selected == text) {
         // Double clicked -- send message
         event.data.self.notifyAll('option_selected');
       }
@@ -35,7 +38,7 @@ function($, Handlebars, Observable, view) {
         event.data.self.selected = text;
         $('.input_mc_button').removeClass('input_mc_button_selected');
         $(event.target).addClass('input_mc_button_selected');
-      }
+      }*/
 
     }
 
