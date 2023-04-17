@@ -1,7 +1,7 @@
 version: "3.0"
 services:
   mongo:
-    image: "mongo"
+    image: mongo:5.0
     container_name: db
     restart: "always"
     networks:
