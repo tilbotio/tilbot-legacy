@@ -43,7 +43,9 @@ function(BasicEditorProjectController, ProjectSchema) {
 
     set_canvas_size(width, height, path = []) {
       super.set_canvas_size(width, height, path);
-      this.project.markModified('blocks'); // This is apparently needed for mongoose to pick up on changes to an array in a Map.
+      if (this.project !== undefined && this.project.markModified !== undefined) {
+        this.project.markModified('blocks'); // This is apparently needed for mongoose to pick up on changes to an array in a Map.
+      }      
       this.modified = true;
       this.ever_modified = true;
     }
@@ -62,28 +64,36 @@ function(BasicEditorProjectController, ProjectSchema) {
 
     add_block(block) {
       super.add_block(block);
-      this.project.markModified('blocks');
+      if (this.project !== undefined && this.project.markModified !== undefined) {
+        this.project.markModified('blocks'); // This is apparently needed for mongoose to pick up on changes to an array in a Map.
+      }      
       this.modified = true;
       this.ever_modified = true;
     }
 
     delete_block(block_id) {
       super.delete_block(block_id);
-      this.project.markModified('blocks');
+      if (this.project !== undefined && this.project.markModified !== undefined) {
+        this.project.markModified('blocks'); // This is apparently needed for mongoose to pick up on changes to an array in a Map.
+      }      
       this.modified = true;
       this.ever_modified = true;
     }
 
     delete_line(from_id, from_connector_id, target_id, path = []) {
       super.delete_line(from_id, from_connector_id, target_id, path);
-      this.project.markModified('blocks'); // This is apparently needed for mongoose to pick up on changes to an array in a Map.
+      if (this.project !== undefined && this.project.markModified !== undefined) {
+        this.project.markModified('blocks'); // This is apparently needed for mongoose to pick up on changes to an array in a Map.
+      }      
       this.modified = true;
       this.ever_modified = true;
     }
 
     set_starting_line(val, path = []) {
       super.set_starting_line(val, path);
-      this.project.markModified('blocks');
+      if (this.project !== undefined && this.project.markModified !== undefined) {
+        this.project.markModified('blocks'); // This is apparently needed for mongoose to pick up on changes to an array in a Map.
+      }      
       this.modified = true;
       this.ever_modified = true;
     }
@@ -102,7 +112,9 @@ function(BasicEditorProjectController, ProjectSchema) {
 
           if (key in tmpblocks) {
             tmpblocks[key] = block;
-            this.project.markModified('blocks');
+            if (this.project !== undefined && this.project.markModified !== undefined) {
+              this.project.markModified('blocks'); // This is apparently needed for mongoose to pick up on changes to an array in a Map.
+            }            
             this.modified = true;
             this.ever_modified = true;  
             return;
@@ -114,7 +126,9 @@ function(BasicEditorProjectController, ProjectSchema) {
         if (k == key) {
           console.log('found the block!');
           tmpblocks[k] = block;
-          this.project.markModified('blocks');
+          if (this.project !== undefined && this.project.markModified !== undefined) {
+            this.project.markModified('blocks'); // This is apparently needed for mongoose to pick up on changes to an array in a Map.
+          }          
           this.modified = true;
           this.ever_modified = true;          
           return;
